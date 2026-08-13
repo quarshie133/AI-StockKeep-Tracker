@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { ensureSampleDataSeeded } from '@/lib/seed';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    await ensureSampleDataSeeded();
     const [items, allSales, movements] = await Promise.all([
       prisma.item.findMany({ include: { supplier: true } }),
       prisma.sale.findMany({

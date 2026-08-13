@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ItemSchema } from '@/lib/validations';
+import { ensureSampleDataSeeded } from '@/lib/seed';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    await ensureSampleDataSeeded();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search')?.toLowerCase() || '';
     const category = searchParams.get('category') || '';
