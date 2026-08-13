@@ -34,40 +34,54 @@ export async function POST(request: Request) {
 
     const systemPrompt = `You are StockKeep AI, an intelligent inventory assistant for a shop management system.
 You have full, real-time access to the store's inventory data below. Answer questions concisely and helpfully.
-Always use specific numbers and item names from the data. Use emojis sparingly for key info.
-Format responses with simple bullet points when listing items. Keep responses under 250 words.
+Always use specific numbers and item names from the data.
+Format responses with simple bullet points when listing items. Keep responses under 200 words.
 
 === LIVE INVENTORY SNAPSHOT ===
 Total Items: ${items.length} | Total Value: $${totalValue.toFixed(2)}
 Low Stock: ${lowStock.length} items | Out of Stock: ${outOfStock.length} items
-Total Revenue (recent ${sales.length} sales): $${totalRevenue.toFixed(2)}
-Suppliers: ${suppliers.length}
+Total Sales Revenue: $${totalRevenue.toFixed(2)} (${sales.length} transactions)
+Suppliers: ${suppliers.map((s) => s.name).join(', ') || 'None'}
 
-ITEMS:
-${items.map((i) => `- ${i.name} [${i.sku}] | Category: ${i.category} | Qty: ${i.quantity} | Threshold: ${i.threshold} | Price: $${i.price.toFixed(2)} | Status: ${i.quantity === 0 ? '❌ OUT' : i.quantity < i.threshold ? '⚠️ LOW' : '✅ OK'} | Supplier: ${i.supplier?.name || 'None'}`).join('\n')}
-
-RECENT SALES (last ${sales.length}):
-${sales.slice(0, 15).map((s) => `- ${s.item?.name || 'Unknown'}: ${s.quantity} units @ $${s.unitPrice.toFixed(2)} = $${s.total.toFixed(2)} on ${new Date(s.soldAt).toLocaleDateString()}`).join('\n') || 'No sales recorded yet.'}
+ITEMS LIST:
+${items.map((i) => `- ${i.name} [${i.sku}] | Category: ${i.category} | Qty: ${i.quantity} | Threshold: ${i.threshold} | Price: $${i.price.toFixed(2)} | Status: ${i.quantity === 0 ? 'OUT OF STOCK' : i.quantity < i.threshold ? 'LOW STOCK' : 'HEALTHY'}`).join('\n')}
 ================================`;
 
-    const model = getGeminiModel();
-    const chat = model.startChat({
-      history: [
-        { role: 'user', parts: [{ text: systemPrompt }] },
-        { role: 'model', parts: [{ text: "I'm StockKeep AI, ready to help you manage your inventory. What would you like to know?" }] },
-        ...(history || []).map((m: { role: string; content: string }) => ({
-          role: m.role as 'user' | 'model',
-          parts: [{ text: m.content }],
-        })),
-      ],
-    });
+    // Rule-based fallback response if Gemini call fails
+    const q = message.toLowerCase();
+    let fallbackReply = `I'm StockKeep AI. Currently you have ${items.length} total items in stock with a total value of $${totalValue.toFixed(2)}.`;
+    if (q.includes('low') || q.includes('out of stock') || q.includes('shortage')) {
+      fallbackReply = `⚠️ Stock Alert Summary:\n` +
+        `- Out of Stock (${outOfStock.length}): ${outOfStock.map(i => i.name).join(', ') || 'None'}\n` +
+        `- Low Stock (${lowStock.length}): ${lowStock.map(i => `${i.name} (${i.quantity} left)`).join(', ') || 'None'}`;
+    } else if (q.includes('revenue') || q.includes('sale') || q.includes('money')) {
+      fallbackReply = `💰 Revenue Summary:\nTotal recorded sales revenue is $${totalRevenue.toFixed(2)} across ${sales.length} transactions.`;
+    } else if (q.includes('supplier') || q.includes('vendor')) {
+      fallbackReply = `🚚 Supplier Directory:\nYou currently have ${suppliers.length} suppliers: ${suppliers.map(s => s.name).join(', ') || 'None'}.`;
+    }
 
-    const result = await chat.sendMessage(message);
-    const reply = result.response.text();
+    try {
+      const conversationContext = (history || [])
+        .slice(-6)
+        .map((m: { role: string; content: string }) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+        .join('\n');
 
-    return NextResponse.json({ reply });
+      const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationContext}\n\nUser: ${message}\nAssistant:`;
+
+      const model = getGeminiModel();
+      const result = await model.generateContent(fullPrompt);
+      const reply = result.response.text().trim();
+
+      if (reply) {
+        return NextResponse.json({ reply });
+      }
+    } catch (aiErr) {
+      console.warn('Gemini AI chat fallback used:', String((aiErr as any)?.message || aiErr));
+    }
+
+    return NextResponse.json({ reply: fallbackReply });
   } catch (error: any) {
-    console.error('AI chat error:', error);
-    return NextResponse.json({ error: 'AI service error', detail: error.message }, { status: 500 });
+    console.error('AI chat route error:', String(error?.message || error));
+    return NextResponse.json({ reply: 'I am your StockKeep AI assistant. Ask me about low stock, revenue, or suppliers!' });
   }
 }
