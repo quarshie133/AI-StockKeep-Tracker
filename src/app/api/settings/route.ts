@@ -24,6 +24,19 @@ function toPublicSettings(settings: {
   };
 }
 
+// Returned when the database is unreachable/unwritable (see
+// Technical_Debt_Plan.pdf, TD-08) so the Settings screen still renders
+// something sensible instead of a hard error.
+const FALLBACK_SETTINGS = {
+  id: 1,
+  storeName: 'StockKeep Store',
+  notifyEmail: false,
+  emailAddress: '',
+  updatedAt: new Date(0),
+  resendApiKeyConfigured: false,
+  passcodeConfigured: true,
+};
+
 export async function GET() {
   try {
     let settings = await prisma.settings.findFirst();
@@ -41,8 +54,8 @@ export async function GET() {
     }
     return NextResponse.json(toPublicSettings(settings));
   } catch (error) {
-    console.error('Error fetching settings:', error);
-    return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+    console.error('Error fetching settings (falling back to defaults — database may be unwritable, see TD-08):', error);
+    return NextResponse.json(FALLBACK_SETTINGS);
   }
 }
 
