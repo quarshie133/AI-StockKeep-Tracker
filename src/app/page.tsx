@@ -1314,6 +1314,35 @@ export default function DashboardPage() {
                   />
                 </div>
 
+                <div className="pt-4 border-t border-[#f0f1f2] flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div>
+                    <h4 className="font-bold text-[#191c1d] text-sm">Demo Data Generator</h4>
+                    <p className="text-xs text-[#8a9490]">Populate sample products, suppliers & 14-day sales data</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/seed?force=true');
+                        if (res.ok) {
+                          showToast('✨ Live sample dataset loaded successfully!');
+                          fetchAnalytics();
+                          fetchItems();
+                          fetchSuppliers();
+                          fetchSales();
+                          fetchAiInsights();
+                        }
+                      } catch {
+                        showToast('Error populating sample data');
+                      }
+                    }}
+                    className="btn-ghost px-4 py-2.5 text-xs font-semibold rounded-xl flex items-center gap-1.5 border-emerald-600 text-[#005440] hover:bg-emerald-50 shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[#005440]" style={{ fontSize: '18px' }}>database</span>
+                    Populate Demo Data
+                  </button>
+                </div>
+
                 <div className="pt-4 flex justify-end">
                   <button type="submit" className="btn-primary px-6 py-3 text-sm rounded-xl font-semibold">
                     Save Settings

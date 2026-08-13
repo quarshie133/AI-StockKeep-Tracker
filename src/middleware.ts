@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
@@ -6,11 +6,12 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = authCookie?.value === 'authenticated';
   const { pathname } = request.nextUrl;
 
-  // Allow static files, api/auth, login page
+  // Allow static files, api/auth, api/seed, login page
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/seed') ||
     pathname === '/login'
   ) {
     if (pathname === '/login' && isAuthenticated) {
