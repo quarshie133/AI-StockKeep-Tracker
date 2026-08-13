@@ -1,0 +1,15 @@
+27-prisma:query SELECT `main`.`StockMovement`.`id`, `main`.`StockMovement`.`itemId`, `main`.`StockMovement`.`type`, `main`.`StockMovement`.`quantity`, `main`.`StockMovement`.`note`, `main`.`StockMovement`.`createdAt` FROM `main`.`StockMovement` WHERE `main`.`StockMovement`.`itemId` IN (?,?,?,?,?,?,?,?,?,?,?,?) ORDER BY `main`.`StockMovement`.`createdAt` DESC LIMIT ? OFFSET ?
+28-prisma:query SELECT `main`.`Item`.`id`, `main`.`Item`.`name`, `main`.`Item`.`sku`, `main`.`Item`.`category`, `main`.`Item`.`quantity`, `main`.`Item`.`threshold`, `main`.`Item`.`price`, `main`.`Item`.`location`, `main`.`Item`.`description`, `main`.`Item`.`expiresAt`, `main`.`Item`.`supplierId`, `main`.`Item`.`createdAt`, `main`.`Item`.`updatedAt` FROM `main`.`Item` WHERE 1=1 LIMIT ? OFFSET ?
+29- GET /api/items 200 in 3.0s (next.js: 2.1s, proxy.ts: 126ms, application-code: 856ms)
+30: POST /api/items 500 in 158ms (next.js: 7ms, proxy.ts: 28ms, application-code: 123ms)
+31:⨯ unhandledRejection: Error: Error: invalid type: boolean `false`, expected enum CodeFrameColorMode
+32-    at ignore-listed frames
+33-prisma:query SELECT COUNT(*) FROM (SELECT `main`.`Item`.`id` FROM `main`.`Item` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+--
+60-prisma:query INSERT INTO `main`.`StockMovement` (`itemId`, `type`, `quantity`, `createdAt`) VALUES (?,?,?,?) RETURNING `id` AS `id`, `itemId` AS `itemId`, `type` AS `type`, `quantity` AS `quantity`, `note` AS `note`, `createdAt` AS `createdAt`
+61-prisma:query COMMIT
+62- POST /api/items/35/adjust 200 in 84ms (next.js: 20ms, proxy.ts: 19ms, application-code: 45ms)
+63: POST /api/items/35/adjust 500 in 71ms (next.js: 22ms, proxy.ts: 20ms, application-code: 29ms)
+64:⨯ unhandledRejection: Error: Error: invalid type: boolean `false`, expected enum CodeFrameColorMode
+65-    at ignore-listed frames
+66-prisma:query SELECT `main`.`Item`.`id`, `main`.`Item`.`name`, `main`.`Item`.`sku`, `main`.`Item`.`category`, `main`.`Item`.`quantity`, `main`.`Item`.`threshold`, `main`.`Item`.`price`, `main`.`Item`.`location`, `main`.`Item`.`description`, `main`.`Item`.`expiresAt`, `main`.`Item`.`supplierId`, `main`.`Item`.`createdAt`, `main`.`Item`.`updatedAt` FROM `main`.`Item` WHERE (`main`.`Item`.`id` = ? AND 1=1) LIMIT ? OFFSET ?

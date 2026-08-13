@@ -1,0 +1,148 @@
+StockKeep API Test Evidence
+Generated: 2026-08-13 13:17:26 UTC
+Target: http://localhost:3001 (local dev server, npm run dev)
+
+===== TC-API-01: Unauthenticated access to protected page redirects to /login =====
+$ curl -s -o /dev/null -w 'HTTP_STATUS:%{http_code} REDIRECT_LOCATION:%{redirect_url}\n' -i "http://localhost:3001/"
+HTTP_STATUS:307 REDIRECT_LOCATION:http://localhost:3001/login
+
+===== TC-API-02: Unauthenticated access to protected API returns 401 =====
+$ curl -s -o /dev/null -w 'HTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/items"
+HTTP_STATUS:401
+
+===== TC-API-03: Login with WRONG passcode is rejected =====
+$ curl -s -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/auth/login" -H 'Content-Type: application/json' -d '{"passcode":"0000"}'
+{"error":"Incorrect passcode, try again"}
+HTTP_STATUS:401
+
+===== TC-API-04: Login with CORRECT default passcode succeeds and sets cookie =====
+$ curl -s -c "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/auth/login" -H 'Content-Type: application/json' -d '{"passcode":"1234"}'
+{"success":true,"message":"Authenticated successfully"}
+HTTP_STATUS:200
+
+===== TC-API-05: Authenticated GET /api/items succeeds (200) after login =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/items" | head -c 900
+{"items":[{"id":34,"name":"Smart RGB LED Strip","sku":"EL-102","category":"Electronics","quantity":75,"threshold":20,"price":29.99,"location":"Aisle 6, Shelf B","description":"Wi-Fi enabled 16ft LED strip light, app & voice controlled.","expiresAt":null,"supplierId":8,"createdAt":"2026-08-13T01:19:30.858Z","updatedAt":"2026-08-13T01:19:30.858Z","supplier":{"id":8,"name":"Nexus Tech Imports","contact":"Alex Rivera","phone":"+1 (555) 345-6789","email":"sales@nexustech.com","address":"88 Tech Blvd, Austin, TX","createdAt":"2026-08-13T01:19:29.870Z"},"movements":[{"id":125,"itemId":34,"type":"OUT","quantity":3,"note":"Automated Sale (3 units)","createdAt":"2026-08-13T04:26:47.366Z"},{"id":121,"itemId":34,"type":"OUT","quantity":3,"note":"Automated Sale (3 units)","createdAt":"2026-08-12T10:04:54.750Z"},{"id":120,"itemId":34,"type":"OUT","quantity":2,"note":"Automated Sale (2 units)","created
+
+===== TC-API-06: POST /api/items with invalid data (negative quantity) rejected 400 =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/items" -H 'Content-Type: application/json' -d '{"name":"Test Item","quantity":-5,"threshold":5,"price":9.99}'
+
+HTTP_STATUS:500
+
+===== TC-API-07: POST /api/items with valid data creates item (201) =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/items" -H 'Content-Type: application/json' -d '{"name":"QA Test Widget","category":"Testing","quantity":20,"threshold":5,"price":12.5}'
+{"id":35,"name":"QA Test Widget","sku":"SKU-013","category":"Testing","quantity":20,"threshold":5,"price":12.5,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-13T13:17:46.270Z","updatedAt":"2026-08-13T13:17:46.270Z"}
+HTTP_STATUS:201
+
+===== TC-API-08: GET /api/items returns the newly created item =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" "http://localhost:3001/api/items?search=QA%20Test%20Widget" | head -c 700
+{"items":[{"id":35,"name":"QA Test Widget","sku":"SKU-013","category":"Testing","quantity":20,"threshold":5,"price":12.5,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-13T13:17:46.270Z","updatedAt":"2026-08-13T13:17:46.270Z","supplier":null,"movements":[{"id":127,"itemId":35,"type":"IN","quantity":20,"note":"Initial stock setup","createdAt":"2026-08-13T13:17:46.348Z"}]}],"stats":{"total":13,"lowStock":3,"outOfStock":2}}
+
+(Item ID for the created QA Test Widget is parsed from TC-API-07's JSON 'id' field and substituted into ITEM_ID below.)
+Resolved ITEM_ID=35
+
+===== TC-API-09: Stock-OUT adjustment exceeding current stock is rejected (zero-floor rule) =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/items/35/adjust" -H 'Content-Type: application/json' -d '{"type":"OUT","quantity":9999}'
+{"error":"Cannot remove 9999 units. Current stock is 20. Stock cannot drop below 0."}
+HTTP_STATUS:400
+
+===== TC-API-10: Valid Stock-OUT adjustment succeeds and decrements quantity =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/items/35/adjust" -H 'Content-Type: application/json' -d '{"type":"OUT","quantity":5}'
+{"item":{"id":35,"name":"QA Test Widget","sku":"SKU-013","category":"Testing","quantity":15,"threshold":5,"price":12.5,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-13T13:17:46.270Z","updatedAt":"2026-08-13T13:17:53.318Z"},"movement":{"id":128,"itemId":35,"type":"OUT","quantity":5,"note":null,"createdAt":"2026-08-13T13:17:53.318Z"},"message":"Stock successfully adjusted (OUT -5)"}
+HTTP_STATUS:200
+
+===== TC-API-11: Valid Stock-IN adjustment succeeds and increments quantity =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/items/35/adjust" -H 'Content-Type: application/json' -d '{"type":"IN","quantity":3}'
+{"item":{"id":35,"name":"QA Test Widget","sku":"SKU-013","category":"Testing","quantity":18,"threshold":5,"price":12.5,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-13T13:17:46.270Z","updatedAt":"2026-08-13T13:17:53.994Z"},"movement":{"id":129,"itemId":35,"type":"IN","quantity":3,"note":null,"createdAt":"2026-08-13T13:17:53.994Z"},"message":"Stock successfully adjusted (IN +3)"}
+HTTP_STATUS:200
+
+===== TC-API-12: Stock adjustment with invalid quantity (0) rejected 400 =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/items/35/adjust" -H 'Content-Type: application/json' -d '{"type":"IN","quantity":0}'
+
+HTTP_STATUS:500
+
+===== TC-API-13: Record a sale within available stock succeeds =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/sales" -H 'Content-Type: application/json' -d "{\"itemId\":35,\"quantity\":2,\"unitPrice\":12.5}"
+{"sale":{"id":95,"itemId":35,"quantity":2,"unitPrice":12.5,"total":25,"note":"Sale transaction","soldAt":"2026-08-13T13:17:56.899Z"},"item":{"id":35,"name":"QA Test Widget","sku":"SKU-013","category":"Testing","quantity":16,"threshold":5,"price":12.5,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-13T13:17:46.270Z","updatedAt":"2026-08-13T13:17:56.899Z"},"message":"Sale recorded successfully! Total: $25.00"}
+HTTP_STATUS:200
+
+===== TC-API-14: Record a sale exceeding available stock is rejected =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/sales" -H 'Content-Type: application/json' -d "{\"itemId\":35,\"quantity\":9999,\"unitPrice\":12.5}"
+{"error":"Insufficient stock! Requested 9999 units, but current stock is 16."}
+HTTP_STATUS:400
+
+===== TC-API-15: Create a supplier with missing name rejected 400 =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/suppliers" -H 'Content-Type: application/json' -d '{"name":""}'
+{"error":"Supplier name is required"}
+HTTP_STATUS:400
+
+===== TC-API-16: Create a supplier with valid name succeeds =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/suppliers" -H 'Content-Type: application/json' -d '{"name":"QA Test Supplier","email":"qa@example.com"}'
+{"id":10,"name":"QA Test Supplier","contact":null,"phone":null,"email":"qa@example.com","address":null,"createdAt":"2026-08-13T13:18:01.349Z"}
+HTTP_STATUS:201
+
+===== TC-API-17: GET /api/reports/summary returns inventory report =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/reports/summary" | head -c 700
+{"summary":{"totalInventoryValue":16275.41,"totalStockUnits":559,"totalRevenue":5327.719999999997,"totalSalesUnits":107,"totalItemsCount":13,"deadStockCount":1},"categoryBreakdown":[{"category":"Home Goods","count":2,"totalQty":150,"totalValue":2876.58},{"category":"Textiles","count":2,"totalQty":46,"totalValue":1219.6599999999999},{"category":"Lighting","count":1,"totalQty":0,"totalValue":0},{"category":"Decor","count":2,"totalQty":105,"totalValue":2534.55},{"category":"Beverages","count":2,"totalQty":149,"totalValue":3775.5499999999997},{"category":"Electronics","count":2,"totalQty":75,"totalValue":2249.25},{"category":"Furniture","count":1,"totalQty":18,"totalValue":3419.82},{"category":"
+
+===== TC-API-18: GET /api/analytics returns dashboard analytics =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/analytics" | head -c 700
+{"kpis":{"totalRevenue":5327.719999999997,"inventoryValue":16275.41,"totalItems":13,"unitsSold":107},"revenueByDay":[{"date":"2026-07-31","revenue":311.9,"count":5},{"date":"2026-08-01","revenue":64.99,"count":2},{"date":"2026-08-02","revenue":477.46000000000004,"count":5},{"date":"2026-08-03","revenue":710.9300000000001,"count":5},{"date":"2026-08-04","revenue":300.95,"count":3},{"date":"2026-08-05","revenue":513.93,"count":5},{"date":"2026-08-06","revenue":116.94999999999999,"count":2},{"date":"2026-08-07","revenue":106.97,"count":2},{"date":"2026-08-08","revenue":139.45,"count":3},{"date":"2026-08-09","revenue":720.4200000000001,"count":4},{"date":"2026-08-10","revenue":226.97000000000003
+
+===== TC-API-19: GET /api/settings returns store settings =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/settings" | head -c 500
+{"id":1,"storeName":"StockKeep Store","notifyEmail":false,"emailAddress":"","resendApiKey":"","passcode":"1234","updatedAt":"2026-08-12T23:18:54.037Z"}
+HTTP_STATUS:200
+
+===== TC-API-20: AI chat route responds 200 even with no/invalid Gemini key configured for this test run (fallback behaviour) =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/ai/chat" -H 'Content-Type: application/json' -d '{"message":"What is low on stock?"}' | head -c 700
+{"reply":"⚠️ Stock Alert Summary:\n- Out of Stock (2): Matte Black Desk Lamp, Wireless Earbuds Pro\n- Low Stock (3): Organic Cotton Throw (12 left), Bamboo Cutting Board (8 left), Cold Brew Coffee Kit (4 left)"}
+HTTP_STATUS:200
+
+===== TC-API-21: AI forecast route responds 200 with a deterministic fallback forecast =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/ai/forecast/35" | head -c 700
+{"daysUntilStockout":8,"reorderQty":10,"urgency":"healthy","confidence":"low","summary":"QA Test Widget has a healthy stock level of 16 units.","action":"Monitor weekly sales."}
+HTTP_STATUS:200
+
+===== TC-API-22: Logout clears the session cookie =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -c "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/auth/logout"
+{"success":true,"message":"Logged out successfully"}
+HTTP_STATUS:200
+
+===== TC-API-23: Post-logout access to protected API is rejected again (401) =====
+$ curl -s -b "C:/Users/BLUEWA~1/AppData/Local/Temp/claude/c--Users-BLUEWAVE-COMP-Documents-projects-Shop-Inventory-Stock-Tracker/d50713c8-633e-4dae-8bf7-a64362b26eaa/scratchpad/cookies.txt" -w '\nHTTP_STATUS:%{http_code}\n' "http://localhost:3001/api/items"
+{"error":"Unauthorized"}
+HTTP_STATUS:401
+
+===== TC-API-24: Unauthenticated POST /api/seed?force=true is REACHABLE without login (security finding SEC-04 / TD-02 — confirms the gap documented in SRS.pdf and Technical_Debt_Plan.pdf; this call is NOT executed with force=true to avoid destructive data loss, only the auth-bypass itself is demonstrated with a safe idempotent call) =====
+$ curl -s -w '\nHTTP_STATUS:%{http_code}\n' -X POST "http://localhost:3001/api/seed" | head -c 300
+{"message":"Seed execution completed","result":{"seeded":false,"count":13}}
+HTTP_STATUS:200
+
+===== END OF EVIDENCE LOG =====
+
+===== TC-API-25: Five rapid consecutive wrong-passcode attempts (no lockout/rate-limit observed) =====
+Attempt 1 -> HTTP_STATUS:401 (no delay, no CAPTCHA/lockout enforced)
+Attempt 2 -> HTTP_STATUS:401 (no delay, no CAPTCHA/lockout enforced)
+Attempt 3 -> HTTP_STATUS:401 (no delay, no CAPTCHA/lockout enforced)
+Attempt 4 -> HTTP_STATUS:401 (no delay, no CAPTCHA/lockout enforced)
+Attempt 5 -> HTTP_STATUS:401 (no delay, no CAPTCHA/lockout enforced)
+
+===== TC-API-26: Response headers on a protected page load (checking for CSP/HSTS/X-Frame-Options) =====
+HTTP/1.1 401 Unauthorized
+content-type: application/json
+Vary: Accept-Encoding
+Date: Thu, 13 Aug 2026 13:23:19 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+HTTP/1.1 200 OK
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+content-type: application/json
+set-cookie: stockkeep_auth=authenticated; Path=/; Expires=Thu, 20 Aug 2026 13:23:19 GMT; Max-Age=604800; HttpOnly; SameSite=lax
+Date: Thu, 13 Aug 2026 13:23:19 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

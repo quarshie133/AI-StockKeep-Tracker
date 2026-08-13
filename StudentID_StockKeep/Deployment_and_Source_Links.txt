@@ -1,0 +1,56 @@
+StockKeep — Deployment and Source Links
+=========================================
+
+Student Name: [TO BE PROVIDED]
+
+Student ID: [TO BE PROVIDED]
+
+Project Title: StockKeep — Shop Inventory & Stock Tracking System
+
+Live Application: [TO BE PROVIDED]
+
+Admin URL: [TO BE PROVIDED]
+(Note: the current build has no separate admin role or admin URL — every
+authenticated session has identical, full access. See SRS.pdf Section 6
+and Technical_Debt_Plan.pdf TD-01. Leave this as "Not applicable in the
+current build" unless a role separation is added before submission.)
+
+Test Username: Not applicable — the application uses a single shared
+passcode, not individual usernames. See below.
+
+Test Password: [TO BE PROVIDED]
+(This is the shop passcode configured via the APP_PASSCODE environment
+variable on the deployment. The application code default is 1234, shown
+directly on the login screen, but the value actually configured on the
+live deployment must be confirmed by the student and entered here.)
+
+Admin Username: Not applicable — see Admin URL note above.
+
+Admin Password: Not applicable — see Admin URL note above.
+
+Source Code Repository: [TO BE PROVIDED]
+
+=========================================
+Notes for the student before submission:
+
+1. This project has not yet been deployed to a public URL as part of this
+   documentation pass — no live testing of a deployed instance was
+   performed. All test evidence in Testing_Report.pdf was captured
+   against a LOCAL development server (http://localhost:3001), not a
+   live deployment. Deploy to Vercel (or your chosen host), then fill in
+   the Live Application URL above and re-run at least a smoke test of
+   the 26 test cases in Testing_Report.pdf against the live URL.
+
+2. Do not commit or publish the real GEMINI_API_KEY or any Resend API
+   key. Confirm your deployment platform's environment variable
+   settings are configured with your own keys, separate from any local
+   .env.local file.
+
+3. If you change APP_PASSCODE for the live deployment away from the
+   default "1234", update the "Test Password" field above accordingly,
+   and consider addressing TD-01 (Settings passcode field is currently
+   non-functional) before relying on the Settings screen for this.
+
+4. Source Code Repository should point to the Git hosting location
+   (e.g., GitHub) for this project. No such remote was configured in the
+   local repository at the time this documentation was prepared.

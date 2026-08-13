@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { DEFAULT_PASSCODE, setAuthCookie } from '@/lib/auth';
 import { hashPasscode, verifyPasscode } from '@/lib/passcode';
 import { checkLoginRateLimit, recordFailedLogin, clearLoginAttempts } from '@/lib/rateLimit';
@@ -23,34 +23,52 @@ export async function POST(request: Request) {
     );
   }
 
+  let passcode: unknown;
   try {
-    const { passcode } = await request.json();
-
-    // The Settings row's passcode is the source of truth. Bootstrap it
-    // from APP_PASSCODE (hashed) on first run if it doesn't exist yet.
-    let settings = await prisma.settings.findFirst();
-    if (!settings) {
-      settings = await prisma.settings.create({
-        data: {
-          id: 1,
-          storeName: 'StockKeep Store',
-          notifyEmail: false,
-          emailAddress: '',
-          resendApiKey: '',
-          passcode: hashPasscode(DEFAULT_PASSCODE),
-        },
-      });
-    }
-
-    if (typeof passcode === 'string' && verifyPasscode(passcode, settings.passcode)) {
-      clearLoginAttempts(clientKey);
-      await setAuthCookie();
-      return NextResponse.json({ success: true, message: 'Authenticated successfully' });
-    }
-
-    recordFailedLogin(clientKey);
-    return NextResponse.json({ error: 'Incorrect passcode, try again' }, { status: 401 });
-  } catch (error) {
+    ({ passcode } = await request.json());
+  } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
+  if (typeof passcode !== 'string') {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  // The Settings row's passcode is the source of truth when the database
+  // is reachable and writable. If it isn't (e.g. a read-only/ephemeral
+  // filesystem on some serverless deployments — see Technical_Debt_Plan.pdf
+  // TD-08), login falls back to comparing against the env-configured
+  // APP_PASSCODE so the app never becomes completely inaccessible.
+  let authenticated = false;
+  try {
+    let settings = await prisma.settings.findFirst();
+    if (!settings) {
+      try {
+        settings = await prisma.settings.create({
+          data: {
+            id: 1,
+            storeName: 'StockKeep Store',
+            notifyEmail: false,
+            emailAddress: '',
+            resendApiKey: '',
+            passcode: hashPasscode(DEFAULT_PASSCODE),
+          },
+        });
+      } catch (createError) {
+        console.error('Could not bootstrap Settings row (database may be read-only):', createError);
+      }
+    }
+    authenticated = settings ? verifyPasscode(passcode, settings.passcode) : passcode === DEFAULT_PASSCODE;
+  } catch (dbError) {
+    console.error('Settings lookup failed, falling back to APP_PASSCODE comparison:', dbError);
+    authenticated = passcode === DEFAULT_PASSCODE;
+  }
+
+  if (authenticated) {
+    clearLoginAttempts(clientKey);
+    await setAuthCookie();
+    return NextResponse.json({ success: true, message: 'Authenticated successfully' });
+  }
+
+  recordFailedLogin(clientKey);
+  return NextResponse.json({ error: 'Incorrect passcode, try again' }, { status: 401 });
 }
