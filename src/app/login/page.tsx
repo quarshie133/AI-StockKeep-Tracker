@@ -124,8 +124,9 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-xs text-[#9aafaa] mt-6">
-          Default passcode:{' '}
-          <strong className="text-[#005440] font-semibold">1234</strong>
+          First time here? The initial passcode is{' '}
+          <strong className="text-[#005440] font-semibold">1234</strong>{' '}
+          — change it under Settings after logging in.
         </p>
       </div>
 

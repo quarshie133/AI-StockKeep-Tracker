@@ -7,7 +7,11 @@ function getClient() {
   return new GoogleGenerativeAI(apiKey);
 }
 
-export function getGeminiModel(modelName = 'gemini-1.5-flash') {
+// 'gemini-flash-latest' is a Google-maintained alias that always points at
+// a currently supported Flash model, chosen deliberately to avoid pinning
+// to a specific dated model name that Google can (and did — see
+// Technical_Debt_Plan.pdf, TD-13) retire out from under the application.
+export function getGeminiModel(modelName = 'gemini-flash-latest') {
   return getClient().getGenerativeModel({ model: modelName });
 }
 

@@ -55,8 +55,8 @@ interface Settings {
   storeName: string;
   notifyEmail: boolean;
   emailAddress?: string;
-  resendApiKey?: string;
-  passcode: string;
+  resendApiKeyConfigured?: boolean;
+  passcodeConfigured?: boolean;
 }
 
 // ── Sub-components ──────────────────────────────────────────────────────────
@@ -115,7 +115,13 @@ export default function DashboardPage() {
   const [salesSummary, setSalesSummary] = useState({ totalRevenue: 0, totalUnitsSold: 0 });
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [reportsData, setReportsData] = useState<any>(null);
-  const [settingsData, setSettingsData] = useState<Settings>({ id: 1, storeName: 'StockKeep Store', notifyEmail: false, emailAddress: '', resendApiKey: '', passcode: '1234' });
+  const [settingsData, setSettingsData] = useState<Settings>({ id: 1, storeName: 'StockKeep Store', notifyEmail: false, emailAddress: '', resendApiKeyConfigured: false, passcodeConfigured: true });
+  // Write-only edit buffers: the server never sends back the real passcode
+  // or Resend API key (see Technical_Debt_Plan.pdf, TD-06), so these start
+  // blank and are only sent to the server when the user actually types a
+  // new value — an empty field means "leave unchanged."
+  const [newPasscode, setNewPasscode] = useState('');
+  const [newResendApiKey, setNewResendApiKey] = useState('');
 
   // ── Analytics State ─────────────────────────────────────────────────────────
   const [analyticsData, setAnalyticsData] = useState<any>(null);
@@ -462,13 +468,29 @@ export default function DashboardPage() {
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload: Record<string, unknown> = {
+        storeName: settingsData.storeName,
+        notifyEmail: settingsData.notifyEmail,
+        emailAddress: settingsData.emailAddress,
+      };
+      // Only send the passcode/API key if the user actually typed a new
+      // value — an empty edit buffer means "keep the current one."
+      if (newPasscode.trim() !== '') payload.passcode = newPasscode.trim();
+      if (newResendApiKey.trim() !== '') payload.resendApiKey = newResendApiKey.trim();
+
       const res = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settingsData),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
+        setSettingsData(await res.json());
+        setNewPasscode('');
+        setNewResendApiKey('');
         showToast('✓ Settings updated successfully');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Error saving settings');
       }
     } catch { showToast('Error saving settings'); }
   };
@@ -1294,24 +1316,29 @@ export default function DashboardPage() {
                       <label className="block text-xs font-semibold text-[#6b7775] mb-1">Resend API Key (for sending emails)</label>
                       <input
                         type="password"
-                        value={settingsData.resendApiKey || ''}
-                        onChange={(e) => setSettingsData({ ...settingsData, resendApiKey: e.target.value })}
-                        placeholder="re_123456789..."
+                        value={newResendApiKey}
+                        onChange={(e) => setNewResendApiKey(e.target.value)}
+                        placeholder={settingsData.resendApiKeyConfigured ? '•••••••• already configured — leave blank to keep' : 're_123456789...'}
+                        autoComplete="new-password"
                         className="w-full px-4 py-2.5 border-2 border-[#e5e7eb] rounded-xl text-sm font-mono"
                       />
-                      <p className="text-[11px] text-[#9aafaa] mt-1">Get your free API key at <a href="https://resend.com" target="_blank" rel="noreferrer" className="text-[#005440] underline">resend.com</a> (3,000 emails/month free)</p>
+                      <p className="text-[11px] text-[#9aafaa] mt-1">For security, the saved key is never sent back to the browser — this field is write-only. Get your free API key at <a href="https://resend.com" target="_blank" rel="noreferrer" className="text-[#005440] underline">resend.com</a> (3,000 emails/month free)</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t border-[#f0f1f2]">
-                  <label className="block text-sm font-semibold text-[#191c1d] mb-1.5">System Access Passcode</label>
+                  <label className="block text-sm font-semibold text-[#191c1d] mb-1.5">Set New System Access Passcode</label>
                   <input
                     type="text"
-                    value={settingsData.passcode}
-                    onChange={(e) => setSettingsData({ ...settingsData, passcode: e.target.value })}
+                    value={newPasscode}
+                    onChange={(e) => setNewPasscode(e.target.value)}
+                    placeholder="Leave blank to keep current passcode"
+                    autoComplete="new-password"
+                    minLength={4}
                     className="w-full px-4 py-2.5 border-2 border-[#e5e7eb] rounded-xl text-sm font-mono text-center tracking-widest font-bold"
                   />
+                  <p className="text-[11px] text-[#9aafaa] mt-1">This passcode is now hashed and is the one actually checked at login. Minimum 4 characters.</p>
                 </div>
 
                 <div className="pt-4 border-t border-[#f0f1f2] flex flex-col sm:flex-row items-center justify-between gap-3">
