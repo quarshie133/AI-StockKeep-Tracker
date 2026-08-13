@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getGeminiModel } from '@/lib/gemini';
 
+export const dynamic = 'force-dynamic';
+
 // Simple in-memory cache (5 min TTL)
 let insightsCache: { data: any; ts: number } | null = null;
 const CACHE_TTL = 5 * 60 * 1000;
