@@ -29,7 +29,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ item
     const avgDailySales = daysSinceFirstSale ? totalSold / daysSinceFirstSale : 0;
     const daysUntilStockout = avgDailySales > 0 ? Math.floor(item.quantity / avgDailySales) : null;
 
-    const prompt = `You are a professional inventory analyst. Analyze this single item and provide a demand forecast.
+    const fallbackForecast = {
+      daysUntilStockout,
+      reorderQty: Math.max(item.threshold * 2, 10),
+      urgency: item.quantity === 0 ? 'critical' : item.quantity < item.threshold ? 'soon' : 'healthy',
+      confidence: item.sales.length > 5 ? 'medium' : 'low',
+      summary: item.quantity === 0
+        ? `${item.name} is currently out of stock. Immediate reorder recommended.`
+        : item.quantity < item.threshold
+        ? `${item.name} is below threshold (${item.quantity} remaining). Reorder suggested soon.`
+        : `${item.name} has a healthy stock level of ${item.quantity} units.`,
+      action: item.quantity < item.threshold ? `Contact ${item.supplier?.name || 'supplier'} to reorder.` : 'Monitor weekly sales.',
+    };
+
+    try {
+      const prompt = `You are a professional inventory analyst. Analyze this single item and provide a demand forecast.
 
 ITEM DATA:
 Name: ${item.name}
@@ -39,43 +53,51 @@ Current Quantity: ${item.quantity}
 Low Stock Threshold: ${item.threshold}
 Unit Price: $${item.price.toFixed(2)}
 Supplier: ${item.supplier?.name || 'None assigned'}
-Total Units Sold (all time): ${totalSold}
+Total Units Sold: ${totalSold}
 Sales Count: ${item.sales.length} transactions
 Average Daily Sales Rate: ${avgDailySales.toFixed(2)} units/day
-Calculated Days Until Stockout: ${daysUntilStockout !== null ? daysUntilStockout : 'Unknown (no sales data)'}
+Calculated Days Until Stockout: ${daysUntilStockout !== null ? daysUntilStockout : 'Unknown'}
 
-Recent Stock Movements (last 30):
-${item.movements.slice(0, 10).map((m) => `- ${m.type}: ${m.quantity} units on ${new Date(m.createdAt).toLocaleDateString()} (${m.note || 'no note'})`).join('\n') || 'None'}
-
-Recent Sales (last 20):
-${item.sales.slice(0, 8).map((s) => `- ${s.quantity} units @ $${s.unitPrice.toFixed(2)} on ${new Date(s.soldAt).toLocaleDateString()}`).join('\n') || 'No sales recorded'}
-
-Respond ONLY with JSON (no markdown, no code blocks):
+Respond ONLY with JSON (no markdown):
 {
   "daysUntilStockout": number or null,
   "reorderQty": number,
   "urgency": "critical" | "soon" | "normal" | "healthy",
   "confidence": "high" | "medium" | "low",
   "summary": "2-3 sentence forecast summary",
-  "action": "Specific recommended action for the shop owner"
+  "action": "Specific recommended action"
 }`;
 
-    const model = getGeminiModel();
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
-    const clean = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-    const parsed = JSON.parse(clean);
+      const model = getGeminiModel();
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
 
-    return NextResponse.json({
-      daysUntilStockout: parsed.daysUntilStockout ?? daysUntilStockout,
-      reorderQty: parsed.reorderQty ?? Math.max(item.threshold * 2, 10),
-      urgency: parsed.urgency ?? 'normal',
-      confidence: parsed.confidence ?? 'low',
-      summary: parsed.summary ?? 'Insufficient data for a reliable forecast.',
-      action: parsed.action ?? 'Monitor stock levels regularly.',
-    });
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return NextResponse.json({
+          daysUntilStockout: parsed.daysUntilStockout ?? fallbackForecast.daysUntilStockout,
+          reorderQty: parsed.reorderQty ?? fallbackForecast.reorderQty,
+          urgency: parsed.urgency ?? fallbackForecast.urgency,
+          confidence: parsed.confidence ?? fallbackForecast.confidence,
+          summary: parsed.summary ?? fallbackForecast.summary,
+          action: parsed.action ?? fallbackForecast.action,
+        });
+      }
+    } catch (aiErr) {
+      console.warn('AI forecast fallback used:', (aiErr as any)?.message || aiErr);
+    }
+
+    return NextResponse.json(fallbackForecast);
   } catch (error: any) {
-    console.error('AI forecast error:', error);
-    return NextResponse.json({ error: 'Failed to generate forecast', detail: error.message }, { status: 500 });
+    console.error('AI forecast error:', String(error?.message || error));
+    return NextResponse.json({
+      daysUntilStockout: null,
+      reorderQty: 10,
+      urgency: 'normal',
+      confidence: 'low',
+      summary: 'Inventory item details retrieved.',
+      action: 'Check stock levels.',
+    });
   }
 }
