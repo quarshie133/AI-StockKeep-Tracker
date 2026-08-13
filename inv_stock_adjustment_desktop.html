@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StockKeep - Stock Adjustment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9fa",
+                        "surface-container-high": "#e7e8e9",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "secondary-fixed": "#e2e2e2",
+                        "status-healthy": "#10B981",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#84d6b9",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary": "#78352b",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#9aedcf",
+                        "status-critical": "#EF4444",
+                        "surface-tint": "#086b53",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "inverse-primary": "#84d6b9",
+                        "secondary": "#5d5f5f",
+                        "secondary-container": "#dfe0e0",
+                        "surface": "#f8f9fa",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#191c1d",
+                        "primary-fixed": "#a0f3d4",
+                        "on-primary-fixed": "#002117",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "error-red": "#DC2626",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#005440",
+                        "status-low": "#F59E0B",
+                        "border-subtle": "#E5E7EB",
+                        "on-tertiary-fixed-variant": "#743329",
+                        "on-secondary-container": "#616363",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-tertiary-container": "#ffd3cc",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "primary-container": "#0f6e56",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "outline": "#6f7a74",
+                        "on-surface-variant": "#3f4944",
+                        "surface-dim": "#d9dadb",
+                        "outline-variant": "#bec9c3",
+                        "on-primary-fixed-variant": "#00513e",
+                        "tertiary-container": "#954c41",
+                        "on-tertiary-fixed": "#3b0804"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface h-full flex overflow-hidden">
+<!-- Top App Bar (Desktop) -->
+<header class="hidden md:flex justify-between items-center w-full px-margin-desktop h-16 bg-surface border-b border-border-subtle fixed top-0 z-40">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md font-bold text-primary">StockKeep</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</header>
+<!-- Side Navigation (Desktop) -->
+<nav class="hidden md:flex flex-col p-md gap-sm bg-surface border-r border-border-subtle docked left-0 h-full w-[240px] pt-24 z-30 fixed">
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">StockKeep</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Inventory Manager</p>
+</div>
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container font-semibold rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" data-weight="fill" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="font-label-md text-label-md">Low Stock</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-md text-label-md">Add Item</span>
+</a>
+<div class="mt-auto pt-lg border-t border-border-subtle">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-[240px] pt-16 h-full overflow-y-auto bg-surface-bright relative">
+<div class="p-lg max-w-5xl mx-auto">
+<div class="mb-lg flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Inventory Management</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Manage your retail stock levels.</p>
+</div>
+</div>
+<!-- Dummy Table for context behind modal -->
+<div class="bg-surface-container-lowest rounded-xl border border-border-subtle overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-border-subtle">
+<tr>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant">Item</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant">SKU</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant text-right">In Stock</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant text-center">Status</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle">
+<tr class="hover:bg-surface-bright/50 transition-colors">
+<td class="py-md px-lg font-body-lg text-body-lg text-on-surface font-medium">Premium Leather Boots</td>
+<td class="py-md px-lg font-body-sm text-body-sm text-on-surface-variant">SKU-BT-092</td>
+<td class="py-md px-lg font-body-lg text-body-lg text-on-surface text-right">24</td>
+<td class="py-md px-lg text-center">
+<span class="inline-flex items-center justify-center px-sm py-xs rounded-full bg-status-healthy/10 text-status-healthy font-label-sm text-label-sm">In Stock</span>
+</td>
+<td class="py-md px-lg text-right">
+<button class="p-sm text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright/50 transition-colors bg-primary/5">
+<td class="py-md px-lg font-body-lg text-body-lg text-on-surface font-medium">Organic Cotton T-Shirt</td>
+<td class="py-md px-lg font-body-sm text-body-sm text-on-surface-variant">SKU-TS-104</td>
+<td class="py-md px-lg font-body-lg text-body-lg text-on-surface text-right">3</td>
+<td class="py-md px-lg text-center">
+<span class="inline-flex items-center justify-center px-sm py-xs rounded-full bg-status-low/10 text-status-low font-label-sm text-label-sm">Low Stock</span>
+</td>
+<td class="py-md px-lg text-right">
+<button class="p-sm text-primary hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Dimmed Background Overlay -->
+<div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-[2px] z-50 flex items-center justify-center">
+<!-- Stock Adjustment Modal -->
+<div class="bg-surface-container-lowest w-full max-w-[400px] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-border-subtle p-lg flex flex-col transform transition-all">
+<!-- Header -->
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Adjust Stock</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Organic Cotton T-Shirt</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="close">close</span>
+</button>
+</div>
+<!-- Current Context -->
+<div class="flex items-center gap-sm mb-lg bg-surface-bright p-sm rounded-lg border border-border-subtle">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Current Stock:</span>
+<span class="font-label-md text-label-md text-on-surface">3 units</span>
+<span class="ml-auto inline-flex items-center justify-center px-sm py-xs rounded-full bg-status-low/10 text-status-low font-label-sm text-label-sm">Low</span>
+</div>
+<!-- Adjustment Stepper with Error State -->
+<div class="mb-xl">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Adjustment Amount</label>
+<div class="flex items-center gap-sm">
+<!-- Decrement Button -->
+<button class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-lg border border-border-subtle bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="remove">remove</span>
+</button>
+<!-- Input with Error Outline -->
+<div class="flex-1 relative">
+<input aria-invalid="true" class="w-full h-12 text-center font-body-lg text-body-lg text-on-surface border-[1.5px] border-error-red rounded-lg bg-surface-container-lowest focus:outline-none focus:ring-0" type="text" value="-5"/>
+<!-- Error Message -->
+<p class="absolute -bottom-6 left-0 font-label-sm text-label-sm text-error-red">Not enough stock to remove 5 units.</p>
+</div>
+<!-- Increment Button -->
+<button class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-lg border border-border-subtle bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Projected Result -->
+<div class="mb-lg pb-md border-b border-border-subtle flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Projected Balance:</span>
+<span class="font-label-md text-label-md text-error-red">-2 units</span>
+</div>
+<!-- Actions -->
+<div class="flex gap-md justify-end">
+<button class="px-lg py-sm font-label-md text-label-md rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors">
+                        Cancel
+                    </button>
+<!-- Disabled Confirm Button -->
+<button class="px-lg py-sm font-label-md text-label-md rounded-lg bg-surface-variant text-on-surface-variant cursor-not-allowed" disabled="">
+                        Confirm
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

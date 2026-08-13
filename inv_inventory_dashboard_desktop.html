@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StockKeep - Inventory Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9fa",
+                        "surface-container-high": "#e7e8e9",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "secondary-fixed": "#e2e2e2",
+                        "status-healthy": "#10B981",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#84d6b9",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary": "#78352b",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#9aedcf",
+                        "status-critical": "#EF4444",
+                        "surface-tint": "#086b53",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "inverse-primary": "#84d6b9",
+                        "secondary": "#5d5f5f",
+                        "secondary-container": "#dfe0e0",
+                        "surface": "#f8f9fa",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#191c1d",
+                        "primary-fixed": "#a0f3d4",
+                        "on-primary-fixed": "#002117",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "error-red": "#DC2626",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#005440",
+                        "status-low": "#F59E0B",
+                        "border-subtle": "#E5E7EB",
+                        "on-tertiary-fixed-variant": "#743329",
+                        "on-secondary-container": "#616363",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-tertiary-container": "#ffd3cc",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "primary-container": "#0f6e56",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "outline": "#6f7a74",
+                        "on-surface-variant": "#3f4944",
+                        "surface-dim": "#d9dadb",
+                        "outline-variant": "#bec9c3",
+                        "on-primary-fixed-variant": "#00513e",
+                        "tertiary-container": "#954c41",
+                        "on-tertiary-fixed": "#3b0804"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="bg-surface dark:bg-surface-dim font-label-md text-label-md docked left-0 h-full w-[240px] border-r border-border-subtle dark:border-outline-variant flat no shadows hidden md:flex flex-col p-md gap-sm flex-shrink-0 z-20 sticky top-0">
+<div class="mb-xl pt-sm px-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">StockKeep</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Inventory Manager</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="bg-primary-container text-on-primary-container font-semibold rounded-lg flex items-center gap-md px-4 py-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+                Inventory
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-on-secondary-fixed-variant rounded-lg flex items-center gap-md px-4 py-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+                Low Stock
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-on-secondary-fixed-variant rounded-lg flex items-center gap-md px-4 py-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                Add Item
+            </a>
+</nav>
+<div class="mt-auto pt-md border-t border-border-subtle">
+<button class="w-full text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-md px-4 py-3 transition-all duration-200 text-left">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Logout
+            </button>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col min-w-0">
+<!-- TopAppBar (Desktop context, adjusted layout to sit next to sidebar) -->
+<header class="bg-surface dark:bg-surface-container border-b border-border-subtle dark:border-outline-variant flat no shadows w-full px-margin-desktop h-16 flex justify-between items-center z-10 sticky top-0 shrink-0">
+<!-- Search on Left -->
+<div class="flex-1 max-w-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-bright border border-border-subtle rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-sm text-body-sm text-on-surface transition-colors placeholder:text-on-surface-variant" placeholder="Search inventory..." type="text"/>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-sm">
+<button class="p-2 text-on-surface-variant hover:bg-secondary-container dark:hover:bg-on-secondary-fixed-variant rounded-full transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-margin-desktop overflow-y-auto bg-background">
+<!-- Error Banner -->
+<div class="mb-lg bg-error-container/20 border border-error/30 rounded-lg p-4 flex items-start sm:items-center justify-between gap-4">
+<div class="flex items-center gap-3 text-error">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">error</span>
+<div>
+<p class="font-label-md text-label-md font-semibold">Couldn't load inventory</p>
+<p class="font-body-sm text-body-sm mt-0.5 opacity-90">Please check your connection and try again.</p>
+</div>
+</div>
+<button class="shrink-0 px-4 py-2 bg-surface-bright text-error border border-error/30 hover:bg-error-container/30 rounded-lg font-label-md text-label-md transition-colors whitespace-nowrap">
+                    Retry
+                </button>
+</div>
+<div class="flex items-center justify-between mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Inventory Overview</h2>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                     New Item
+                 </button>
+</div>
+<!-- Stats Row (Bento-ish) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-lg flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">widgets</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Total Items</p>
+<p class="font-headline-md text-headline-md font-bold">1,248</p>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-lg flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-status-low/10 flex items-center justify-center text-status-low shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Low Stock</p>
+<p class="font-headline-md text-headline-md font-bold">14</p>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl p-lg flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-status-critical/10 flex items-center justify-center text-status-critical shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">production_quantity_limits</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Out of Stock</p>
+<p class="font-headline-md text-headline-md font-bold">3</p>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container-lowest border border-border-subtle rounded-xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-border-subtle bg-surface-bright">
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant font-semibold">Item Name</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant font-semibold">Category</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant font-semibold text-right">Quantity</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant font-semibold">Status</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm divide-y divide-border-subtle">
+<!-- Row 1 Healthy -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-4 px-6">
+<div class="font-medium text-on-surface">Artisan Ceramic Mug</div>
+<div class="text-on-surface-variant text-[12px] mt-0.5">SKU: HW-001</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Home Goods</td>
+<td class="py-4 px-6 text-right font-medium">142</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-healthy/10 text-status-healthy font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-healthy"></span>
+                                        Healthy
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 Low -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-4 px-6">
+<div class="font-medium text-on-surface">Organic Cotton Throw</div>
+<div class="text-on-surface-variant text-[12px] mt-0.5">SKU: TX-089</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Textiles</td>
+<td class="py-4 px-6 text-right font-medium text-status-low">12</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-low/10 text-status-low font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-low"></span>
+                                        Low Stock
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 Critical -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-4 px-6">
+<div class="font-medium text-on-surface">Matte Black Desk Lamp</div>
+<div class="text-on-surface-variant text-[12px] mt-0.5">SKU: LT-042</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Lighting</td>
+<td class="py-4 px-6 text-right font-medium text-status-critical">0</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-critical/10 text-status-critical font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-critical"></span>
+                                        Out of Stock
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 Healthy -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="py-4 px-6">
+<div class="font-medium text-on-surface">Minimalist Wall Clock</div>
+<div class="text-on-surface-variant text-[12px] mt-0.5">SKU: DC-112</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">Decor</td>
+<td class="py-4 px-6 text-right font-medium">45</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-healthy/10 text-status-healthy font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-status-healthy"></span>
+                                        Healthy
+                                    </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="border-t border-border-subtle bg-surface-bright px-6 py-4 flex items-center justify-between">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Showing 1 to 4 of 1,248 entries</p>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 border border-border-subtle rounded-lg text-on-surface-variant disabled:opacity-50 font-label-sm text-label-sm bg-surface-container-lowest hover:bg-surface-container transition-colors" disabled="">Previous</button>
+<button class="px-3 py-1.5 border border-border-subtle rounded-lg text-on-surface-variant font-label-sm text-label-sm bg-surface-container-lowest hover:bg-surface-container transition-colors">Next</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

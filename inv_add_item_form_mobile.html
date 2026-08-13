@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Add Item - StockKeep</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#f8f9fa",
+                      "surface-container-high": "#e7e8e9",
+                      "tertiary-fixed-dim": "#ffb4a8",
+                      "secondary-fixed": "#e2e2e2",
+                      "status-healthy": "#10B981",
+                      "inverse-surface": "#2e3132",
+                      "secondary-fixed-dim": "#c6c6c7",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#84d6b9",
+                      "surface-variant": "#e1e3e4",
+                      "tertiary": "#78352b",
+                      "error": "#ba1a1a",
+                      "on-primary-container": "#9aedcf",
+                      "status-critical": "#EF4444",
+                      "surface-tint": "#086b53",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f3f4f5",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#f0f1f2",
+                      "inverse-primary": "#84d6b9",
+                      "secondary": "#5d5f5f",
+                      "secondary-container": "#dfe0e0",
+                      "surface": "#f8f9fa",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "on-background": "#191c1d",
+                      "primary-fixed": "#a0f3d4",
+                      "on-primary-fixed": "#002117",
+                      "on-tertiary": "#ffffff",
+                      "background": "#f8f9fa",
+                      "error-red": "#DC2626",
+                      "surface-container-highest": "#e1e3e4",
+                      "surface-container": "#edeeef",
+                      "tertiary-fixed": "#ffdad4",
+                      "primary": "#005440",
+                      "status-low": "#F59E0B",
+                      "border-subtle": "#E5E7EB",
+                      "on-tertiary-fixed-variant": "#743329",
+                      "on-secondary-container": "#616363",
+                      "on-secondary-fixed-variant": "#454747",
+                      "on-tertiary-container": "#ffd3cc",
+                      "on-secondary": "#ffffff",
+                      "on-surface": "#191c1d",
+                      "primary-container": "#0f6e56",
+                      "on-secondary-fixed": "#1a1c1c",
+                      "outline": "#6f7a74",
+                      "on-surface-variant": "#3f4944",
+                      "surface-dim": "#d9dadb",
+                      "outline-variant": "#bec9c3",
+                      "on-primary-fixed-variant": "#00513e",
+                      "tertiary-container": "#954c41",
+                      "on-tertiary-fixed": "#3b0804"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "gutter": "16px",
+                      "margin-desktop": "32px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "margin-mobile": "16px",
+                      "md": "16px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom Stepper Input hide arrows */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface h-screen w-screen overflow-hidden flex flex-col font-body-lg">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 bg-surface border-b border-border-subtle flex-shrink-0 z-10 relative">
+<div class="flex items-center gap-sm">
+<!-- Back button for task flow -->
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full active:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Add Item</h1>
+</div>
+<div class="flex items-center">
+<!-- Trailing action intentionally left empty for this view or could have a reset -->
+</div>
+</header>
+<!-- Main Content Area - Form -->
+<main class="flex-1 overflow-y-auto w-full max-w-md mx-auto px-margin-mobile pt-md pb-32">
+<form class="flex flex-col gap-lg" id="add-item-form">
+<!-- Image Upload Section -->
+<div class="flex flex-col items-center justify-center w-full h-48 bg-surface-container-low border border-dashed border-outline-variant rounded-xl cursor-pointer active:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-secondary text-4xl mb-2" style="font-variation-settings: 'FILL' 0;">add_photo_alternate</span>
+<p class="font-label-md text-label-md text-secondary">Tap to add photo</p>
+</div>
+<!-- Item Name Input (Error State Example) -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="item-name">Item Name *</label>
+<input class="w-full px-4 py-3 bg-surface-container-lowest border-[1.5px] border-error-red rounded-lg focus:outline-none focus:ring-0 text-on-surface font-body-lg" id="item-name" placeholder="e.g. Arabica Coffee Beans" type="text" value=""/>
+<p class="font-label-sm text-label-sm text-error-red mt-[4px]">Item name is required</p>
+</div>
+<!-- SKU / Barcode Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="item-sku">SKU / Barcode</label>
+<div class="relative">
+<input class="w-full pl-4 pr-12 py-3 bg-surface-container-lowest border border-border-subtle rounded-lg focus:outline-none focus:border-primary text-on-surface font-body-lg" id="item-sku" placeholder="Scan or type" type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-secondary active:text-primary" type="button">
+<span class="material-symbols-outlined">barcode_scanner</span>
+</button>
+</div>
+</div>
+<!-- Category Select -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="item-category">Category</label>
+<div class="relative">
+<select class="w-full px-4 py-3 bg-surface-container-lowest border border-border-subtle rounded-lg focus:outline-none focus:border-primary text-on-surface font-body-lg appearance-none" id="item-category">
+<option disabled="" selected="" value="">Select category</option>
+<option value="beverages">Beverages</option>
+<option value="snacks">Snacks</option>
+<option value="supplies">Supplies</option>
+<option value="perishables">Perishables</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">expand_more</span>
+</div>
+</div>
+<div class="flex gap-4 w-full">
+<!-- Quantity Stepper -->
+<div class="flex flex-col gap-xs flex-1">
+<label class="font-label-md text-label-md text-on-surface" for="item-quantity">Initial Stock</label>
+<div class="flex items-center justify-between bg-surface-container-lowest border border-border-subtle rounded-lg overflow-hidden h-[50px]">
+<button class="w-[44px] h-full flex items-center justify-center bg-surface-container-low text-on-surface active:bg-surface-container-highest transition-colors border-r border-border-subtle" onclick="document.getElementById('item-quantity').stepDown()" type="button">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<input class="flex-1 text-center bg-transparent border-none focus:outline-none focus:ring-0 text-on-surface font-headline-md text-headline-md h-full py-0" id="item-quantity" min="0" type="number" value="0"/>
+<button class="w-[44px] h-full flex items-center justify-center bg-surface-container-low text-on-surface active:bg-surface-container-highest transition-colors border-l border-border-subtle" onclick="document.getElementById('item-quantity').stepUp()" type="button">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<!-- Price Input -->
+<div class="flex flex-col gap-xs flex-1">
+<label class="font-label-md text-label-md text-on-surface" for="item-price">Unit Price</label>
+<div class="relative h-[50px]">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-lg">$</span>
+<input class="w-full pl-8 pr-4 h-full bg-surface-container-lowest border border-border-subtle rounded-lg focus:outline-none focus:border-primary text-on-surface font-body-lg" id="item-price" min="0" placeholder="0.00" step="0.01" type="number"/>
+</div>
+</div>
+</div>
+<!-- Alert Threshold -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="item-alert">Low Stock Alert Threshold</label>
+<div class="flex items-center justify-between bg-surface-container-lowest border border-border-subtle rounded-lg overflow-hidden h-[50px] w-1/2">
+<button class="w-[44px] h-full flex items-center justify-center bg-surface-container-low text-on-surface active:bg-surface-container-highest transition-colors border-r border-border-subtle" onclick="document.getElementById('item-alert').stepDown()" type="button">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<input class="flex-1 text-center bg-transparent border-none focus:outline-none focus:ring-0 text-on-surface font-body-lg h-full py-0" id="item-alert" min="0" type="number" value="10"/>
+<button class="w-[44px] h-full flex items-center justify-center bg-surface-container-low text-on-surface active:bg-surface-container-highest transition-colors border-l border-border-subtle" onclick="document.getElementById('item-alert').stepUp()" type="button">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<p class="font-label-sm text-label-sm text-secondary mt-1">You will be notified when stock falls below this number.</p>
+</div>
+</form>
+</main>
+<!-- Sticky Bottom Action Area -->
+<div class="fixed bottom-0 left-0 w-full p-margin-mobile bg-surface border-t border-border-subtle shadow-[0_-4px_12px_rgba(0,0,0,0.05)] z-20 pb-safe">
+<button class="w-full h-12 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 active:bg-surface-tint transition-colors" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+            Save Item
+        </button>
+</div>
+<!-- Bottom Navigation Omitted intentionally based on rules: Task-Focused Linear flow with 'Close/Back' implies departure from main nav -->
+<script>
+        // Simple visual feedback for form submission
+        document.querySelector('.bg-primary-container').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Saving...';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                // Focus the errored input to demonstrate the validation
+                document.getElementById('item-name').focus();
+            }, 800);
+        });
+    </script>
+</body></html>

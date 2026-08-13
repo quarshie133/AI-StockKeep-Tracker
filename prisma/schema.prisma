@@ -1,0 +1,69 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Item {
+  id          Int             @id @default(autoincrement())
+  name        String
+  sku         String          @unique
+  category    String          @default("General")
+  quantity    Int             @default(0)
+  threshold   Int             @default(5)
+  price       Float           @default(0.0)
+  location    String?
+  description String?
+  expiresAt   DateTime?
+  supplierId  Int?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  movements   StockMovement[]
+  sales       Sale[]
+  supplier    Supplier?       @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+}
+
+model StockMovement {
+  id        Int      @id @default(autoincrement())
+  itemId    Int
+  type      String
+  quantity  Int
+  note      String?
+  createdAt DateTime @default(now())
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Sale {
+  id        Int      @id @default(autoincrement())
+  itemId    Int
+  quantity  Int
+  unitPrice Float
+  total     Float
+  note      String?
+  soldAt    DateTime @default(now())
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  contact   String?
+  phone     String?
+  email     String?
+  address   String?
+  createdAt DateTime @default(now())
+  items     Item[]
+}
+
+model Settings {
+  id           Int      @id @default(1)
+  storeName    String   @default("StockKeep Store")
+  notifyEmail  Boolean  @default(false)
+  emailAddress String?  @default("")
+  resendApiKey String?  @default("")
+  passcode     String   @default("1234")
+  updatedAt    DateTime @updatedAt
+}

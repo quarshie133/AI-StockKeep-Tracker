@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Hanken Grotesk', sans-serif;
+    background-color: #f4f5f6;
+    color: #191c1d;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ── Material icons ── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+.material-symbols-outlined.icon-fill {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c8d0cc; border-radius: 10px; }
+
+/* ── Focus ── */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #005440;
+  box-shadow: 0 0 0 3px rgba(0,84,64,0.12);
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-6px); }
+  40%,80%  { transform: translateX(6px); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.18); }
+}
+@keyframes growWidth {
+  from { width: 0 !important; }
+  to   { width: var(--bar-width); }
+}
+@keyframes growHeight {
+  from { height: 0 !important; }
+  to   { height: var(--bar-height); }
+}
+
+/* ── Analytics bar animations ── */
+.bar-grow-w {
+  animation: growWidth 0.7s cubic-bezier(.16,1,.3,1) both;
+}
+.bar-grow-h {
+  animation: growHeight 0.6s cubic-bezier(.16,1,.3,1) both;
+}
+
+/* ── Modal card scale-in ── */
+.modal-card { animation: scaleIn 0.22s cubic-bezier(.16,1,.3,1) both; }
+
+/* ── Utility classes ── */
+.anim-fade-up  { animation: fadeUp 0.22s ease both; }
+.anim-scale-in { animation: scaleIn 0.22s cubic-bezier(.16,1,.3,1) both; }
+.anim-shake    { animation: shake 0.45s ease; }
+.anim-spin     { animation: spin 0.9s linear infinite; }
+
+.skeleton {
+  background: linear-gradient(90deg, #e9eaeb 25%, #f4f5f6 50%, #e9eaeb 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* ── Table row hover ── */
+.inventory-row {
+  transition: background-color 0.12s ease;
+  cursor: pointer;
+}
+.inventory-row:hover { background-color: rgba(0,84,64,0.04); }
+.row-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.inventory-row:hover .row-actions,
+.inventory-row:focus-within .row-actions { opacity: 1; }
+
+/* ── Stat card hover ── */
+.stat-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+}
+
+/* ── Nav button ── */
+.nav-btn {
+  transition: background-color 0.14s ease, color 0.14s ease;
+  border-radius: 10px;
+}
+.nav-btn.active {
+  background: linear-gradient(135deg, #0f6e56 0%, #005440 100%);
+  color: #9aedcf;
+  box-shadow: 0 2px 8px rgba(0,84,64,0.22);
+}
+.nav-btn:not(.active):hover { background: #eef0ef; }
+
+/* ── Primary button ── */
+.btn-primary {
+  background: linear-gradient(135deg, #0f6e56 0%, #005440 100%);
+  color: #ffffff;
+  font-weight: 600;
+  transition: opacity 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0,84,64,0.25);
+  border-radius: 10px;
+}
+.btn-primary:hover  { opacity: 0.92; box-shadow: 0 4px 14px rgba(0,84,64,0.32); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Ghost / outline button ── */
+.btn-ghost {
+  border: 1.5px solid #d1d5db;
+  color: #3f4944;
+  border-radius: 10px;
+  transition: background-color 0.14s ease, border-color 0.14s ease;
+}
+.btn-ghost:hover { background: #f4f5f6; border-color: #b5bab7; }
+
+/* ── Qty stepper ── */
+.qty-btn {
+  transition: background 0.12s ease, transform 0.1s ease;
+}
+.qty-btn:hover  { background: #e2e4e3; }
+.qty-btn:active { transform: scale(0.88); }
+
+/* ── Type toggle (IN/OUT) ── */
+.type-btn {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  border-radius: 10px;
+}
+.type-btn.t-in {
+  background: rgba(15,110,86,.10);
+  color: #005440;
+  border-color: #005440;
+}
+.type-btn.t-out {
+  background: rgba(220,38,38,.08);
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+/* ── Login card ── */
+.login-card {
+  box-shadow: 0 12px 48px rgba(0,84,64,.13), 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* ── Mobile bottom nav ── */
+.bnav-btn {
+  transition: color 0.14s ease;
+}
+.bnav-pill {
+  transition: background-color 0.14s ease, transform 0.14s ease;
+  border-radius: 9999px;
+  padding: 4px 16px;
+}
+.bnav-btn.active .bnav-pill { background: rgba(0,84,64,0.1); }
+.bnav-btn:active .bnav-pill { transform: scale(0.9); }

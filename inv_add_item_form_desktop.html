@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+
+<html class="h-full bg-surface" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StockKeep - Add Item</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9fa",
+                        "surface-container-high": "#e7e8e9",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "secondary-fixed": "#e2e2e2",
+                        "status-healthy": "#10B981",
+                        "inverse-surface": "#2e3132",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#84d6b9",
+                        "surface-variant": "#e1e3e4",
+                        "tertiary": "#78352b",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#9aedcf",
+                        "status-critical": "#EF4444",
+                        "surface-tint": "#086b53",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f2",
+                        "inverse-primary": "#84d6b9",
+                        "secondary": "#5d5f5f",
+                        "secondary-container": "#dfe0e0",
+                        "surface": "#f8f9fa",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#191c1d",
+                        "primary-fixed": "#a0f3d4",
+                        "on-primary-fixed": "#002117",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "error-red": "#DC2626",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#005440",
+                        "status-low": "#F59E0B",
+                        "border-subtle": "#E5E7EB",
+                        "on-tertiary-fixed-variant": "#743329",
+                        "on-secondary-container": "#616363",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-tertiary-container": "#ffd3cc",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "primary-container": "#0f6e56",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "outline": "#6f7a74",
+                        "on-surface-variant": "#3f4944",
+                        "surface-dim": "#d9dadb",
+                        "outline-variant": "#bec9c3",
+                        "on-primary-fixed-variant": "#00513e",
+                        "tertiary-container": "#954c41",
+                        "on-tertiary-fixed": "#3b0804"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface h-full flex overflow-hidden">
+<!-- Side Navigation Shell (from JSON) -->
+<nav class="hidden md:flex flex-col p-md gap-sm bg-surface dark:bg-surface-dim border-r border-border-subtle dark:border-outline-variant docked left-0 h-full w-[240px] flex-shrink-0 z-20">
+<div class="mb-lg px-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">StockKeep</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Inventory Manager</p>
+</div>
+<div class="flex-1 flex flex-col gap-sm">
+<a class="flex items-center gap-sm p-sm text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-on-secondary-fixed-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-on-secondary-fixed-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="font-label-md text-label-md">Low Stock</span>
+</a>
+<a class="flex items-center gap-sm p-sm bg-primary-container text-on-primary-container font-semibold rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-md text-label-md">Add Item</span>
+</a>
+</div>
+<div class="mt-auto">
+<a class="flex items-center gap-sm p-sm text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-on-secondary-fixed-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col items-center justify-center p-lg relative bg-surface overflow-y-auto">
+<!-- Top App Bar - Mobile Fallback (Hidden on Desktop per instructions) -->
+<header class="md:hidden flex justify-between items-center w-full px-margin-mobile h-16 bg-surface border-b border-border-subtle absolute top-0 left-0 z-10">
+<span class="font-headline-md text-headline-md font-bold text-primary">StockKeep</span>
+<button class="text-on-surface-variant hover:bg-secondary-container rounded-full p-xs transition-colors">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</header>
+<!-- Form Modal Overlay Effect (Desktop Centered Focus) -->
+<div class="w-full max-w-lg bg-surface-container-lowest border border-border-subtle rounded-xl p-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] relative z-10 mt-16 md:mt-0">
+<div class="mb-lg flex items-center justify-between">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Add New Item</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Enter product details to add to your inventory.</p>
+</div>
+<div class="bg-surface-container p-sm rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[32px]" data-icon="add_box">add_box</span>
+</div>
+</div>
+<form class="space-y-lg">
+<!-- Item Name - Error State -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="item_name">Item Name *</label>
+<div class="relative">
+<input class="w-full px-md py-sm bg-surface-container-lowest border-[1.5px] border-error-red rounded-lg font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-error-red placeholder:text-on-surface-variant/50 transition-colors" id="item_name" name="item_name" placeholder="e.g. Premium Coffee Beans" type="text" value=""/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-error-red" data-icon="error">error</span>
+</div>
+<p class="font-label-sm text-label-sm text-error-red mt-base ml-xs flex items-center gap-1">
+                        Name is required
+                    </p>
+</div>
+<!-- Category -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="category">Category</label>
+<div class="relative">
+<select class="w-full px-md py-sm bg-surface-container-lowest border border-border-subtle rounded-lg font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none cursor-pointer transition-colors" id="category" name="category">
+<option class="text-on-surface-variant" disabled="" selected="" value="">Select a category</option>
+<option value="beverages">Beverages</option>
+<option value="snacks">Snacks</option>
+<option value="supplies">Supplies</option>
+<option value="electronics">Electronics</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Quantity Grid -->
+<div class="grid grid-cols-2 gap-md">
+<!-- Starting Quantity -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs" for="starting_qty">Starting Qty</label>
+<input class="w-full px-md py-sm bg-surface-container-lowest border border-border-subtle rounded-lg font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/50 transition-colors" id="starting_qty" min="0" name="starting_qty" placeholder="0" type="number"/>
+</div>
+<!-- Low-stock Threshold -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-xs flex items-center justify-between" for="threshold">
+                            Threshold
+                            <span class="material-symbols-outlined text-[16px] text-status-low cursor-help" data-icon="info" title="Alert triggers when stock falls below this number">info</span>
+</label>
+<input class="w-full px-md py-sm bg-surface-container-lowest border border-border-subtle rounded-lg font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/50 transition-colors" id="threshold" min="0" name="threshold" placeholder="5" type="number"/>
+</div>
+</div>
+<!-- Action Area -->
+<div class="pt-sm mt-lg border-t border-border-subtle flex justify-end gap-md">
+<button class="px-lg py-sm bg-surface-container-lowest border border-primary text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" type="button">
+                        Cancel
+                    </button>
+<!-- Disabled State Button -->
+<button class="px-lg py-sm bg-surface-container-highest text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed transition-colors flex items-center gap-xs" disabled="" type="submit">
+<span class="material-symbols-outlined text-[18px]" data-icon="save">save</span>
+                        Save Item
+                    </button>
+</div>
+</form>
+</div>
+</main>
+<!-- Bottom Nav Bar - Mobile Only (from JSON) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-gutter pb-safe h-16 bg-surface dark:bg-surface-container-lowest border-t border-border-subtle dark:border-outline-variant z-50 rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high scale-110 duration-200 w-16 h-full" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-sm text-label-sm-mobile mt-xs">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold active:bg-surface-container-high scale-110 duration-200 w-16 h-full relative" href="#">
+<div class="absolute -top-4 bg-primary-container p-2 rounded-full border-4 border-surface shadow-sm">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="add" data-weight="fill" style="font-variation-settings: 'FILL' 1;">add</span>
+</div>
+<span class="font-label-sm text-label-sm-mobile mt-6">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant active:bg-surface-container-high scale-110 duration-200 w-16 h-full" href="#">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="font-label-sm text-label-sm-mobile mt-xs">Low Stock</span>
+</a>
+</nav>
+<script>
+        // Simple script to toggle save button based on input (demonstration of micro-interaction)
+        const nameInput = document.getElementById('item_name');
+        const saveButton = document.querySelector('button[type="submit"]');
+        const errorContainer = nameInput.parentElement.nextElementSibling;
+
+        nameInput.addEventListener('input', (e) => {
+            if(e.target.value.trim().length > 0) {
+                // Simulating valid state removal of error
+                nameInput.classList.remove('border-error-red', 'border-[1.5px]');
+                nameInput.classList.add('border-border-subtle', 'border');
+                if(errorContainer) errorContainer.style.display = 'none';
+                
+                // Enable button slightly for demo if valid
+                saveButton.disabled = false;
+                saveButton.classList.remove('bg-surface-container-highest', 'text-on-surface-variant', 'cursor-not-allowed');
+                saveButton.classList.add('bg-primary-container', 'text-on-primary-container', 'hover:bg-primary', 'hover:text-white');
+            } else {
+                // Revert to error state
+                nameInput.classList.add('border-error-red', 'border-[1.5px]');
+                nameInput.classList.remove('border-border-subtle', 'border');
+                if(errorContainer) errorContainer.style.display = 'flex';
+                
+                saveButton.disabled = true;
+                saveButton.classList.add('bg-surface-container-highest', 'text-on-surface-variant', 'cursor-not-allowed');
+                saveButton.classList.remove('bg-primary-container', 'text-on-primary-container', 'hover:bg-primary', 'hover:text-white');
+            }
+        });
+    </script>
+</body></html>
