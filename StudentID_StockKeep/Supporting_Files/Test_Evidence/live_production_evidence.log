@@ -1,0 +1,43 @@
+StockKeep — LIVE PRODUCTION Deployment Evidence
+Target: https://ai-stock-keep-tracker.vercel.app/
+Generated: 2026-08-13, ~23:32 UTC
+
+===== DEF-06 (discovered live, not in original local testing): systemic database failure on Vercel =====
+Before fix (commits up to 24e6371): GET /api/items, /api/analytics, /api/settings all returned
+  HTTP 500 {"error":"Failed to fetch ..."} on the LIVE deployment specifically (never reproduced
+  locally). Root cause: Vercel's serverless filesystem is read-only outside /tmp; the bundled
+  prisma/dev.db SQLite file could not be reliably opened there. This is TD-08 manifesting in
+  production, discovered only by testing the actual live URL after the other fixes shipped.
+
+Fix (commit 45431f4): next.config.ts outputFileTracingIncludes + src/lib/prisma.ts copies
+  dev.db into /tmp on cold start (Vercel only) and points PrismaClient at the writable copy.
+  GET /api/settings also gained a safe-default fallback for defense in depth.
+
+===== V-12: Live login (production) =====
+$ curl -c cookies -X POST https://ai-stock-keep-tracker.vercel.app/api/auth/login -d '{"passcode":"1234"}'
+{"success":true,"message":"Authenticated successfully"}
+HTTP_STATUS:200
+
+===== V-13: Live GET /api/settings (was 500, now 200 with secrets masked) =====
+{"id":1,"storeName":"StockKeep Store","notifyEmail":false,"emailAddress":"","updatedAt":"2026-08-12T23:18:54.037Z","resendApiKeyConfigured":false,"passcodeConfigured":true}
+HTTP_STATUS:200
+
+===== V-14: Live GET /api/items (was 500, now 200 with real data) =====
+{"items":[{"id":34,"name":"Smart RGB LED Strip", ... }]}
+HTTP_STATUS:200
+
+===== V-15: Live POST /api/items — real write confirmed =====
+$ curl -X POST https://ai-stock-keep-tracker.vercel.app/api/items -d '{"name":"Live DB Fix Verification","quantity":5,"threshold":2,"price":1}'
+{"id":35,"name":"Live DB Fix Verification","sku":"SKU-013","category":"General","quantity":5,"threshold":2,"price":1,...}
+HTTP_STATUS:201
+
+===== V-16: Live GET /api/analytics (was 500, now 200) =====
+{"kpis":{"totalRevenue":5302.72,"inventoryValue":16080.41,"totalItems":13,"unitsSold":105}, ...}
+HTTP_STATUS:200
+
+===== V-17: Live unauthenticated POST /api/seed still correctly blocked =====
+HTTP_STATUS:401
+
+Caveat: /tmp is ephemeral on Vercel. Data written via this fix may not survive a cold start or
+be visible to a different concurrent function instance. This restores live functionality; it is
+not a substitute for a real managed database (Technical_Debt_Plan.pdf, TD-08).

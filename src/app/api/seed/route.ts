@@ -3,19 +3,19 @@ import { ensureSampleDataSeeded } from '@/lib/seed';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+// Idempotent, non-destructive: populates the database only if it is
+// currently empty. There is no wipe/force mode — see src/lib/seed.ts.
+export async function POST() {
   try {
-    const { searchParams } = new URL(request.url);
-    const force = searchParams.get('force') === 'true';
-
-    const result = await ensureSampleDataSeeded(force);
+    const result = await ensureSampleDataSeeded();
     return NextResponse.json({ message: 'Seed execution completed', result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error seeding DB:', error);
-    return NextResponse.json({ error: 'Failed to seed database', detail: error.message }, { status: 500 });
+    const detail = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: 'Failed to seed database', detail }, { status: 500 });
   }
 }
 
-export async function GET(request: Request) {
-  return POST(request);
+export async function GET() {
+  return POST();
 }

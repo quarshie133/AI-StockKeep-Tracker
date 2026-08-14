@@ -22,18 +22,17 @@ const SEED_ITEMS = [
   { name: 'Smart RGB LED Strip', sku: 'EL-102', category: 'Electronics', quantity: 75, threshold: 20, price: 29.99, location: 'Aisle 6, Shelf B', description: 'Wi-Fi enabled 16ft LED strip light, app & voice controlled.', supplierIdx: 2 },
 ];
 
-export async function ensureSampleDataSeeded(force = false) {
+// Populates the database once, only if it is empty. There is deliberately
+// no "force"/wipe mode any more — the system is meant to come populated
+// with a full working dataset out of the box, not offer a destructive
+// reset button. (Previously this supported a force=true path that deleted
+// all data; that capability, and the "Demo Data Generator" UI that
+// triggered it, have been removed — see Technical_Debt_Plan.pdf, TD-02.)
+export async function ensureSampleDataSeeded() {
   try {
     const existingCount = await prisma.item.count();
-    if (existingCount > 0 && !force) {
+    if (existingCount > 0) {
       return { seeded: false, count: existingCount };
-    }
-
-    if (force) {
-      await prisma.sale.deleteMany({});
-      await prisma.stockMovement.deleteMany({});
-      await prisma.item.deleteMany({});
-      await prisma.supplier.deleteMany({});
     }
 
     // 1. Suppliers
