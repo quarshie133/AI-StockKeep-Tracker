@@ -22,14 +22,16 @@ passcode and no distinct admin role or admin-only area. Every
 authenticated session has identical access (see SRS.pdf, AUTH-05).
 There is no separate admin URL to provide.
 
-Test Password: 1234
-(This is the initial/default passcode, verified live at the time of
-writing — login tested successfully with this value. It is not a
-placeholder or a secret being withheld: the login screen itself
-displays this same value to first-time users. It can be changed at
-any time via the in-app Settings screen — if it no longer works when
-tested, someone has since changed it; contact the student above for
-the current value rather than assuming the deployment is broken.)
+Test Password: 557575
+(Updated from the earlier default of 1234, verified live at the time
+of writing — login tested successfully with this value. The login
+screen no longer displays the passcode publicly (the earlier "First
+time here? The initial passcode is 1234..." hint has been removed) —
+this document is now the only place the test credential is disclosed.
+It can be changed at any time via the in-app Settings screen — if it
+no longer works when tested, someone has since changed it; contact
+the student above for the current value rather than assuming the
+deployment is broken.)
 
 Test Username: Not applicable — the application uses a single shared
 passcode, not individual usernames.

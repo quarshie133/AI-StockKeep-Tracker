@@ -64,6 +64,6 @@ model Settings {
   notifyEmail  Boolean  @default(false)
   emailAddress String?  @default("")
   resendApiKey String?  @default("")
-  passcode     String   @default("1234")
+  passcode     String   @default("557575")
   updatedAt    DateTime @updatedAt
 }

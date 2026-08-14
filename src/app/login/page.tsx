@@ -122,12 +122,6 @@ export default function LoginPage() {
             {loading ? 'Unlocking…' : 'Unlock'}
           </button>
         </form>
-
-        <p className="text-center text-xs text-[#9aafaa] mt-6">
-          First time here? The initial passcode is{' '}
-          <strong className="text-[#005440] font-semibold">1234</strong>{' '}
-          — change it under Settings after logging in.
-        </p>
       </div>
 
       <p className="text-xs text-[#bec9c3] uppercase tracking-widest mt-8 text-center">

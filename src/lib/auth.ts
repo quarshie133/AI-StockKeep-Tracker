@@ -1,7 +1,7 @@
 ﻿import { cookies } from 'next/headers';
 
 export const AUTH_COOKIE = 'stockkeep_auth';
-export const DEFAULT_PASSCODE = process.env.APP_PASSCODE || '1234';
+export const DEFAULT_PASSCODE = process.env.APP_PASSCODE || '557575';
 
 export async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies();
