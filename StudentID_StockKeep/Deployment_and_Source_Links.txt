@@ -17,28 +17,37 @@ Supervisor: Prof. Solomon Mensah
 
 Live Application: https://ai-stock-keep-tracker.vercel.app/
 
-Admin URL: Not applicable — the current build has a single shared
-passcode and no distinct admin role or admin-only area. Every
-authenticated session has identical access (see SRS.pdf, AUTH-05).
-There is no separate admin URL to provide.
+Admin URL: https://ai-stock-keep-tracker.vercel.app/admin/login
+(The admin system was implemented on 2026-08-14 and security-reviewed
+before it was ever committed or deployed. Admins log in via this
+separate URL with the admin passcode below. Admin access provides a
+full Admin Dashboard at /admin with overview KPIs, live activity feed,
+audit log, session monitor, user lock mode, and passcode management.
+Full description in Project_Documentation.pdf, "Authentication &
+Authorisation," and User_Manual.pdf, "Admin Panel.")
 
-Test Password: 557575
+Test Password (User): 557575
 (Updated from the earlier default of 1234, verified live at the time
 of writing — login tested successfully with this value. The login
-screen no longer displays the passcode publicly (the earlier "First
-time here? The initial passcode is 1234..." hint has been removed) —
-this document is now the only place the test credential is disclosed.
-It can be changed at any time via the in-app Settings screen — if it
-no longer works when tested, someone has since changed it; contact
-the student above for the current value rather than assuming the
-deployment is broken.)
+screen no longer displays the passcode publicly — this document is
+the only place the test credential is disclosed. It can be changed
+at any time via the in-app Settings screen.)
 
-Test Username: Not applicable — the application uses a single shared
-passcode, not individual usernames.
+Test Username: Not applicable — the application uses passcodes, not usernames.
 
-Admin Username: Not applicable — see Admin URL note above.
+Admin Password: 774819
+(The admin passcode. Note: an earlier draft of this feature used the
+value "admin554545" as its default, and that value was briefly printed
+in a local, never-committed draft of README.md — it was replaced with
+this value specifically because that earlier value should be treated
+as burned, not because of any live exposure. Verified live at the time
+of writing. Can be changed via Admin Panel -> Admin Settings after
+login (requires the current admin passcode to confirm). If it no
+longer works when tested, it has been changed; contact the student for
+the current value. It is hashed with scrypt (Node's built-in crypto),
+the same algorithm used for the regular user passcode -- not bcrypt.)
 
-Admin Password: Not applicable — see Admin URL note above.
+Admin Username: Not applicable — admin login uses a passcode, not a username.
 
 Source Code Repository: https://github.com/quarshie133/AI-StockKeep-Tracker
 
@@ -47,7 +56,17 @@ Verification performed (checked live immediately before finalising
 this document, not assumed from earlier testing):
 
   - Live URL reachable, renders login screen ................ Confirmed
-  - Login with the Test Password above ....................... 200 OK, session established
+  - Login with the User Test Password above .................. 200 OK, session established
+  - Admin login at /admin/login with Admin Password above .... 200 OK, admin session established
+  - The now-retired admin default ("admin554545") is rejected . 401 Unauthorized (fallback removed)
+  - Unauthenticated access to /api/admin/* returns 403 ........ Confirmed
+  - Regular user session cannot reach /api/admin/* ............ Confirmed (403)
+  - /admin overview dashboard loads with real KPI data ........ Confirmed
+  - Admin can view audit log & session/login history .......... Confirmed
+  - Admin lock mode toggle blocks non-admin writes (403) ....... Confirmed
+  - Admin is never blocked by lock mode ........................ Confirmed
+  - Admin lock mode releases, user writes resume ............... Confirmed
+  - Every action above correctly attributed in the audit log ... Confirmed (user vs admin)
   - Unauthenticated write to /api/seed (should be blocked) .... 401 Unauthorized
   - Unauthenticated force=true reseed (should be inert) ....... No wipe capability exists in the code
   - Authenticated read of inventory data (/api/items) ......... 200 OK, real data returned
@@ -55,7 +74,11 @@ this document, not assumed from earlier testing):
   - Authenticated read of analytics data ...................... 200 OK, real data returned
   - Settings API secrets remain masked ........................ Confirmed (no raw key/passcode returned)
 
-Full raw evidence: Supporting_Files/Test_Evidence/live_production_evidence.log
+Full API test evidence:
+  - Supporting_Files/Test_Evidence/api_test_evidence.log (Pass 1)
+  - Supporting_Files/Test_Evidence/fix_verification_PRODUCTION_evidence.log (Pass 2)
+  - Supporting_Files/Test_Evidence/admin_panel_live_evidence.log (Pass 5 — admin panel, live)
+Full admin panel description: Project_Documentation.pdf ("Authentication & Authorisation") and User_Manual.pdf ("Admin Panel")
 
 =========================================
 Important caveat — data persistence:
@@ -70,24 +93,52 @@ session may not persist indefinitely and could reset on a Vercel cold
 start. If this matters for grading, note this limitation rather than
 assume it is a new bug; it is documented, known behaviour.
 
+The admin passcode is stored in the same SQLite database, so if a cold
+start resets it, the admin passcode reverts to whatever value is
+baked into the committed prisma/dev.db file (currently the Admin
+Password documented above, already hashed -- not a plaintext
+default) -- not to any earlier value. If you change the admin passcode
+live via Admin Settings and then a cold start occurs before that
+change is committed to the repository, the live value will revert to
+what's in the repository, same as the regular user passcode already
+behaves.
+
 =========================================
 Notes for the student before further submission:
 
-1. Do not commit or publish the real GEMINI_API_KEY or any Resend API
-   key. Confirm your deployment platform's environment variable
-   settings are configured with your own keys, separate from any
-   local .env.local file.
+1. Do not commit or publish the real GEMINI_API_KEY, Resend API key,
+   or admin passcode. Confirm your deployment platform's environment
+   variable settings are configured with your own keys, separate from
+   any local .env.local file.
 
 2. Consider provisioning a managed database (Vercel Postgres, Neon, or
    Turso) to replace the /tmp workaround before relying on this
    deployment for real, durable data — see Technical_Debt_Plan.pdf,
-   TD-08, for the full recommendation.
+   TD-08, for the full recommendation. This is especially important
+   now that the admin passcode is stored in the database.
 
-3. If the Test Password above is changed after this document is
-   finalised, update this section (or note the change separately) so
-   the examiner is not blocked from logging in.
+3. If the User Test Password or Admin Password above are changed after
+   this document is finalised, update this section (or note the change
+   separately) so the examiner is not blocked from logging in.
 
 4. The "Demo Data Generator" feature has been removed from the
    application entirely — the system now comes pre-populated with a
    full working dataset automatically, with no manual trigger and no
    destructive reset capability exposed anywhere.
+
+5. Role-based authorisation (SRS.pdf, AUTH-07/AUTH-08 -- supersedes the
+   earlier AUTH-05, which stated no role separation existed) is now
+   IMPLEMENTED as of 2026-08-14: a two-tier Shop Staff / Administrator
+   system with a full audit trail. The requirements traceability
+   matrix, Technical_Debt_Plan.pdf, and Testing_Report.pdf have all
+   been updated accordingly.
+
+6. Before this admin feature was ever committed to source control, a
+   security review found and fixed three issues: a live plaintext
+   fallback in the admin login check, a bootstrap bug that would have
+   corrupted the regular user passcode on a fresh deployment, and
+   factual documentation errors including a credential value printed
+   in a draft README. None of these ever reached the public repository
+   or the live site in their broken form -- see Technical_Debt_Plan.pdf,
+   TD-16 to TD-18, for full detail.
+

@@ -1,0 +1,61 @@
+=== A-01: Unauthenticated /api/admin/overview rejected ===
+HTTP_STATUS:403
+=== A-02: OLD exposed default admin554545 must NOT work ===
+{"error":"Incorrect admin passcode, try again"}
+HTTP_STATUS:401
+
+=== A-03: Regular user login still works (557575) ===
+{"success":true,"message":"Authenticated successfully"}
+HTTP_STATUS:200
+
+=== A-04: Regular user cannot access /api/admin/overview (403) ===
+HTTP_STATUS:403
+
+=== A-05: NEW admin passcode (774819) works ===
+{"success":true,"role":"admin","message":"Admin authenticated successfully"}
+HTTP_STATUS:200
+
+=== A-06: Admin can access /api/admin/overview ===
+{"totalItems":12,"totalRevenue":6179.129999999997,"totalUnitsSold":114,"inventoryValue":16075.41,"lowStockCount":3,"outOfStockCount":2,"totalSuppliers":4,"auditLogCount":0,"activeSessionsToday":2}
+HTTP_STATUS:200
+
+=== A-07: Admin can view sessions (should show the login events above) ===
+{"sessions":[{"id":12,"role":"admin","success":true,"ip":"154.161.48.52","createdAt":"2026-08-14T19:23:04.836Z"},{"id":11,"role":"user","success":true,"ip":"154.161.48.52","createdAt":"2026-08-14T19:23:02.358Z"},{"id":10,"role":"admin","success":false,"ip":"154.161.48.52","createdAt":"2026-08-14T19:23:01.109Z"}]}
+HTTP_STATUS:200
+
+=== A-08: Admin can view audit log ===
+{"logs":[],"pagination":{"page":1,"pageSize":30,"total":0,"totalPages":0}}
+HTTP_STATUS:200
+
+=== A-09: Admin toggles Lock Mode ON ===
+{"userReadOnly":true}
+HTTP_STATUS:200
+
+=== A-10: Regular user is now BLOCKED from creating an item (403) ===
+{"error":"System is in read-only mode. Contact your administrator."}
+HTTP_STATUS:403
+
+=== A-11: Admin is NOT blocked by lock mode (can still create) ===
+{"id":49,"name":"Admin Bypass Test Item","sku":"SKU-013","category":"General","quantity":5,"threshold":2,"price":1,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-14T19:23:13.192Z","updatedAt":"2026-08-14T19:23:13.192Z"}
+HTTP_STATUS:201
+
+=== A-12: Admin toggles Lock Mode back OFF (cleanup) ===
+{"userReadOnly":false}
+HTTP_STATUS:200
+
+=== A-13: Regular user can create again now that lock is off ===
+{"id":50,"name":"Lock Test Item 2","sku":"SKU-014","category":"General","quantity":5,"threshold":2,"price":1,"location":null,"description":null,"expiresAt":null,"supplierId":null,"createdAt":"2026-08-14T19:23:15.582Z","updatedAt":"2026-08-14T19:23:15.582Z"}
+HTTP_STATUS:201
+
+=== A-14: /api/auth/me reflects admin role correctly ===
+{"role":"admin","readOnly":false}
+HTTP_STATUS:200
+=== A-15: /api/auth/me reflects user role correctly ===
+{"role":"user","readOnly":false}
+HTTP_STATUS:200
+
+=== A-16: Audit log now contains the STOCK/ITEM actions from above, correctly attributed ===
+ITEM_CREATED | user | 50
+LOCK_MODE_CHANGED | admin | None
+ITEM_CREATED | admin | 49
+LOCK_MODE_CHANGED | admin | None
