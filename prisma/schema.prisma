@@ -59,11 +59,30 @@ model Supplier {
 }
 
 model Settings {
-  id           Int      @id @default(1)
-  storeName    String   @default("StockKeep Store")
-  notifyEmail  Boolean  @default(false)
-  emailAddress String?  @default("")
-  resendApiKey String?  @default("")
-  passcode     String   @default("557575")
-  updatedAt    DateTime @updatedAt
+  id             Int      @id @default(1)
+  storeName      String   @default("StockKeep Store")
+  notifyEmail    Boolean  @default(false)
+  emailAddress   String?  @default("")
+  resendApiKey   String?  @default("")
+  passcode       String   @default("557575")
+  adminPasscode  String   @default("")
+  userReadOnly   Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  entityId  Int?
+  details   String?
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+}
+
+model LoginEvent {
+  id        Int      @id @default(autoincrement())
+  role      String
+  success   Boolean
+  ip        String?
+  createdAt DateTime @default(now())
 }

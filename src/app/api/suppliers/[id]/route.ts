@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logAudit, isUserReadOnly } from '@/lib/audit';
+import { isAdmin } from '@/lib/auth';
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const { id } = await params;
     const supplierId = parseInt(id);
     if (isNaN(supplierId)) {
@@ -30,6 +36,7 @@ export async function PUT(
       },
     });
 
+    logAudit('SUPPLIER_UPDATED', admin ? 'admin' : 'user', supplierId, { name: updated.name });
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Error updating supplier:', error);
@@ -42,6 +49,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const { id } = await params;
     const supplierId = parseInt(id);
     if (isNaN(supplierId)) {
@@ -52,6 +63,7 @@ export async function DELETE(
       where: { id: supplierId },
     });
 
+    logAudit('SUPPLIER_DELETED', admin ? 'admin' : 'user', supplierId);
     return NextResponse.json({ message: 'Supplier deleted successfully' });
   } catch (error) {
     console.error('Error deleting supplier:', error);

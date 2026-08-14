@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ItemSchema } from '@/lib/validations';
 import { ensureSampleDataSeeded } from '@/lib/seed';
+import { logAudit, isUserReadOnly } from '@/lib/audit';
+import { isAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +64,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const body = await request.json();
     const validatedData = ItemSchema.parse(body);
 
@@ -94,6 +100,7 @@ export async function POST(request: Request) {
       });
     }
 
+    logAudit('ITEM_CREATED', admin ? 'admin' : 'user', newItem.id, { name: newItem.name, sku: newItem.sku, quantity: newItem.quantity });
     return NextResponse.json(newItem, { status: 201 });
   } catch (error: any) {
     if (error?.name === 'ZodError') {

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ItemSchema } from '@/lib/validations';
+import { logAudit, isUserReadOnly } from '@/lib/audit';
+import { isAdmin } from '@/lib/auth';
 
 export async function GET(
   request: Request,
@@ -42,6 +44,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const { id } = await params;
     const itemId = parseInt(id);
     if (isNaN(itemId)) {
@@ -66,6 +72,7 @@ export async function PUT(
       },
     });
 
+    logAudit('ITEM_UPDATED', admin ? 'admin' : 'user', itemId, { name: updatedItem.name });
     return NextResponse.json(updatedItem);
   } catch (error: any) {
     if (error?.name === 'ZodError') {
@@ -80,6 +87,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const { id } = await params;
     const itemId = parseInt(id);
     if (isNaN(itemId)) {
@@ -90,6 +101,7 @@ export async function DELETE(
       where: { id: itemId },
     });
 
+    logAudit('ITEM_DELETED', admin ? 'admin' : 'user', itemId);
     return NextResponse.json({ success: true, message: 'Item deleted successfully' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete item' }, { status: 500 });

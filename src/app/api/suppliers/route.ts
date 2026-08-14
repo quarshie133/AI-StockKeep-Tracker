@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logAudit, isUserReadOnly } from '@/lib/audit';
+import { isAdmin } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -20,6 +22,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const body = await request.json();
     const { name, contact, phone, email, address } = body;
 
@@ -37,6 +43,7 @@ export async function POST(request: Request) {
       },
     });
 
+    logAudit('SUPPLIER_CREATED', admin ? 'admin' : 'user', supplier.id, { name: supplier.name });
     return NextResponse.json(supplier, { status: 201 });
   } catch (error) {
     console.error('Error creating supplier:', error);

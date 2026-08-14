@@ -2,12 +2,18 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { StockAdjustmentSchema } from '@/lib/validations';
 import { checkAndSendLowStockNotification } from '@/lib/notify';
+import { logAudit, isUserReadOnly } from '@/lib/audit';
+import { isAdmin } from '@/lib/auth';
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const { id } = await params;
     const itemId = parseInt(id);
     if (isNaN(itemId)) {
@@ -59,6 +65,7 @@ export async function POST(
       checkAndSendLowStockNotification(updatedItem).catch(console.error);
     }
 
+    logAudit('STOCK_ADJUSTED', admin ? 'admin' : 'user', itemId, { type: validatedData.type, quantity: validatedData.quantity, note: validatedData.note });
     return NextResponse.json({
       item: updatedItem,
       movement,

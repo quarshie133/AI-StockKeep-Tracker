@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { hashPasscode } from '@/lib/passcode';
 import { DEFAULT_PASSCODE } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 // Strips secret fields from a Settings row before it is ever sent to the
 // client, replacing them with booleans the UI can use to render
@@ -95,6 +96,7 @@ export async function PUT(request: Request) {
       });
     }
 
+    logAudit('SETTINGS_UPDATED', 'user', 1, { storeName });
     return NextResponse.json(toPublicSettings(settings));
   } catch (error) {
     console.error('Error updating settings:', error);

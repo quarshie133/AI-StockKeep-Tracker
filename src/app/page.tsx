@@ -123,6 +123,10 @@ export default function DashboardPage() {
   const [newPasscode, setNewPasscode] = useState('');
   const [newResendApiKey, setNewResendApiKey] = useState('');
 
+  // ── Role & Lock State ───────────────────────────────────────────────────────
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+
   // ── Analytics State ─────────────────────────────────────────────────────────
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -322,6 +326,10 @@ export default function DashboardPage() {
     fetchSuppliers();
     fetchSettings();
     fetchAiInsights();
+    // Fetch role / lock mode
+    fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(d => {
+      if (d) { setIsAdmin(d.role === 'admin'); setIsReadOnly(d.readOnly); }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -580,6 +588,15 @@ export default function DashboardPage() {
         </nav>
 
         <div className="pt-4 border-t border-[#eaeceb] mt-2">
+          {isAdmin && (
+            <a
+              href="/admin"
+              className="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#4a5551] mb-1"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>admin_panel_settings</span>
+              Admin Panel
+            </a>
+          )}
           <button onClick={() => setLogoutModalOpen(true)} className="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#4a5551]">
             <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>logout</span>
             Logout
@@ -635,6 +652,13 @@ export default function DashboardPage() {
 
         {/* Content Body */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          {/* Read-Only Banner */}
+          {isReadOnly && !isAdmin && (
+            <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold anim-fade-up" style={{ background: 'rgba(250,82,82,0.08)', border: '1px solid rgba(250,82,82,0.25)', color: '#dc2626' }}>
+              <span className="material-symbols-outlined icon-fill" style={{ fontSize: '20px' }}>lock</span>
+              <span>System is in <strong>read-only mode</strong>. Contact your administrator to make changes.</span>
+            </div>
+          )}
           {/* ═══ ANALYTICS DASHBOARD TAB ═════════════════════ */}
           {activeTab === 'dashboard' && (
             <div className="anim-fade-up space-y-6">

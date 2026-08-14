@@ -3,10 +3,12 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get('stockkeep_auth');
+  const adminCookie = request.cookies.get('stockkeep_admin');
   const isAuthenticated = authCookie?.value === 'authenticated';
+  const isAdminSession = adminCookie?.value === 'admin';
   const { pathname } = request.nextUrl;
 
-  // Allow static files, api/auth, login page.
+  // Allow static files, api/auth, login page, admin-login page.
   // NOTE: /api/seed is intentionally NOT whitelisted — it can wipe and
   // reseed all data (force=true) and must require authentication like
   // every other data-mutating route. See Technical_Debt_Plan.pdf, TD-02.
@@ -14,10 +16,25 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/api/auth') ||
-    pathname === '/login'
+    pathname === '/login' ||
+    pathname === '/admin/login'
   ) {
     if (pathname === '/login' && isAuthenticated) {
       return NextResponse.redirect(new URL('/', request.url));
+    }
+    if (pathname === '/admin/login' && isAdminSession) {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Protect /admin routes — require admin cookie
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    if (!isAdminSession) {
+      if (pathname.startsWith('/api/admin')) {
+        return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      }
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
     return NextResponse.next();
   }

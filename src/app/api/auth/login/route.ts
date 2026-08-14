@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { DEFAULT_PASSCODE, setAuthCookie } from '@/lib/auth';
 import { hashPasscode, verifyPasscode } from '@/lib/passcode';
 import { checkLoginRateLimit, recordFailedLogin, clearLoginAttempts } from '@/lib/rateLimit';
+import { logLoginEvent } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 
 function getClientKey(request: Request): string {
@@ -66,9 +67,11 @@ export async function POST(request: Request) {
   if (authenticated) {
     clearLoginAttempts(clientKey);
     await setAuthCookie();
+    logLoginEvent('user', true, clientKey);
     return NextResponse.json({ success: true, message: 'Authenticated successfully' });
   }
 
   recordFailedLogin(clientKey);
+  logLoginEvent('user', false, clientKey);
   return NextResponse.json({ error: 'Incorrect passcode, try again' }, { status: 401 });
 }

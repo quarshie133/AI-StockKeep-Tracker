@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { checkAndSendLowStockNotification } from '@/lib/notify';
+import { logAudit, isUserReadOnly } from '@/lib/audit';
+import { isAdmin } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -38,6 +40,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const admin = await isAdmin();
+    if (!admin && await isUserReadOnly()) {
+      return NextResponse.json({ error: 'System is in read-only mode. Contact your administrator.' }, { status: 403 });
+    }
     const body = await request.json();
     const { itemId, quantity, unitPrice, note } = body;
 
@@ -92,6 +98,7 @@ export async function POST(request: Request) {
       checkAndSendLowStockNotification(updatedItem).catch(console.error);
     }
 
+    logAudit('SALE_RECORDED', admin ? 'admin' : 'user', parsedItemId, { quantity: parsedQty, unitPrice: priceToUse, total });
     return NextResponse.json({
       sale,
       item: updatedItem,
