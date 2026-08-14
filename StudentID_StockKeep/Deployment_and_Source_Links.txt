@@ -1,0 +1,91 @@
+StockKeep — Deployment and Source Links
+=========================================
+
+Student Name: Prince Ephraim Quarshie
+
+Student ID: 22424601
+
+Project Title: StockKeep — AI Shop Inventory & Stock Tracking System
+
+Institution: University of Ghana
+
+Department: Computer Science
+
+Module / Course: CSCD602
+
+Supervisor: Prof. Solomon Mensah
+
+Live Application: https://ai-stock-keep-tracker.vercel.app/
+
+Admin URL: Not applicable — the current build has a single shared
+passcode and no distinct admin role or admin-only area. Every
+authenticated session has identical access (see SRS.pdf, AUTH-05).
+There is no separate admin URL to provide.
+
+Test Password: 1234
+(This is the initial/default passcode, verified live at the time of
+writing — login tested successfully with this value. It is not a
+placeholder or a secret being withheld: the login screen itself
+displays this same value to first-time users. It can be changed at
+any time via the in-app Settings screen — if it no longer works when
+tested, someone has since changed it; contact the student above for
+the current value rather than assuming the deployment is broken.)
+
+Test Username: Not applicable — the application uses a single shared
+passcode, not individual usernames.
+
+Admin Username: Not applicable — see Admin URL note above.
+
+Admin Password: Not applicable — see Admin URL note above.
+
+Source Code Repository: https://github.com/quarshie133/AI-StockKeep-Tracker
+
+=========================================
+Verification performed (checked live immediately before finalising
+this document, not assumed from earlier testing):
+
+  - Live URL reachable, renders login screen ................ Confirmed
+  - Login with the Test Password above ....................... 200 OK, session established
+  - Unauthenticated write to /api/seed (should be blocked) .... 401 Unauthorized
+  - Unauthenticated force=true reseed (should be inert) ....... No wipe capability exists in the code
+  - Authenticated read of inventory data (/api/items) ......... 200 OK, real data returned
+  - Authenticated write (item creation) ....................... 201 Created, persisted
+  - Authenticated read of analytics data ...................... 200 OK, real data returned
+  - Settings API secrets remain masked ........................ Confirmed (no raw key/passcode returned)
+
+Full raw evidence: Supporting_Files/Test_Evidence/live_production_evidence.log
+
+=========================================
+Important caveat — data persistence:
+
+The live deployment's database (SQLite) runs on a workaround (copying
+the database file into Vercel's writable /tmp directory on each cold
+start — see Technical_Debt_Plan.pdf, TD-08) that was needed to make
+the live site functional at all. Without it, every data operation on
+the live site returned a server error. This workaround makes the site
+USABLE but /tmp is EPHEMERAL — data added during a demo/grading
+session may not persist indefinitely and could reset on a Vercel cold
+start. If this matters for grading, note this limitation rather than
+assume it is a new bug; it is documented, known behaviour.
+
+=========================================
+Notes for the student before further submission:
+
+1. Do not commit or publish the real GEMINI_API_KEY or any Resend API
+   key. Confirm your deployment platform's environment variable
+   settings are configured with your own keys, separate from any
+   local .env.local file.
+
+2. Consider provisioning a managed database (Vercel Postgres, Neon, or
+   Turso) to replace the /tmp workaround before relying on this
+   deployment for real, durable data — see Technical_Debt_Plan.pdf,
+   TD-08, for the full recommendation.
+
+3. If the Test Password above is changed after this document is
+   finalised, update this section (or note the change separately) so
+   the examiner is not blocked from logging in.
+
+4. The "Demo Data Generator" feature has been removed from the
+   application entirely — the system now comes pre-populated with a
+   full working dataset automatically, with no manual trigger and no
+   destructive reset capability exposed anywhere.
